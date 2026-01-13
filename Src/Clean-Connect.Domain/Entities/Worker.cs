@@ -1,0 +1,151 @@
+﻿using Clean_Connect.Domain.Enums;
+using Clean_Connect.Domain.Events;
+using Clean_Connect.Domain.Utilities;
+using Clean_Connect.Domain.Value_Objects;
+using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Clean_Connect.Domain.Entities
+{
+    public class Worker : BaseEntity
+    {
+        private Worker() { }
+
+        private Worker(FullName name, Address address, PhoneNumber contact, Gender gender, Email email, string state, DateTime dob, string? createdBy = null)
+        {
+            FullName = name ?? throw new ArgumentNullException("name");
+            Address = address ?? throw new ArgumentNullException("address");
+            Contact = contact ?? throw new ArgumentNullException("contact");
+            Gender = gender ;
+            Email = email ?? throw new ArgumentNullException("email");
+            State = state ?? throw new ArgumentNullException("state");
+            ValidateDateOfBirth(dob);
+            DateOfBirth = dob;
+
+            UpdateMetadata(createdBy);
+        }
+
+        public FullName FullName { get; private set; } = default!;
+
+        public Address Address { get; private set; } = default!;
+
+        public PhoneNumber Contact { get; private set; } = default!;
+
+        public Gender Gender { get; private set; } = default!;
+
+        public Email Email { get; private set; } = default!;
+ 
+
+        public string State { get; private set; } = default!;
+
+        public DateTime DateOfBirth { get; private set; } = default!;
+
+        public int Age
+        {
+            get
+            {
+                var today = DateTime.Today;
+
+                var age = today.Year - DateOfBirth.Year;
+
+                if (DateOfBirth.Date > today.AddYears(-age)) age--;
+                return age;
+            }
+        }
+
+        public static Worker Create(FullName name, Address address, PhoneNumber contact, Gender gender, Email email, string state, DateTime dob, string? createdBy = null)
+        {
+            ValidateDateOfBirth(dob);
+            ValidateState(state);
+            var worker = new Worker(name, address, contact, gender, email, state, dob);
+
+            //domain event
+            worker.AddDomainEvent(new WorkerCreatedDomainEvent(worker.Id));
+            worker.UpdateMetadata(createdBy);
+            return worker;
+        }
+
+        public void UpdateState(string state, string? modifiedBy = null)
+        {
+            ValidateState(state);
+            State = state.Trim();
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateName(string newFirstName, string newLastName, string? modifiedBy = null)
+        {
+
+            FullName = FullName.Create(newFirstName, newLastName);
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateAddress(string newAddress, string? modifiedBy = null)
+        {
+
+            Address = Address.Create(newAddress);
+            UpdateMetadata(modifiedBy);
+        }
+        public void UpdateGender(Gender gender, string? modifiedBy = null)
+        {
+
+            if (!Enum.IsDefined(typeof(Gender), gender))
+                throw new InvalidOperationException("Invalid gender value");
+
+            Gender = gender;
+            UpdateMetadata(modifiedBy);
+        }
+        public void UpdateEmail(string newEmail, string? modifiedBy = null)
+        {
+
+            Email = Email.Create(newEmail.Trim().ToLowerInvariant());
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateContact(string newContact, string? modifiedBy = null)
+        {
+
+            Contact = PhoneNumber.Create(newContact.Trim());
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateDateOfBirth(DateTime newDob, string? modifiedBy = null)
+        {
+            ValidateDateOfBirth(newDob);
+
+            DateOfBirth = newDob;
+
+            UpdateMetadata(modifiedBy);
+        }
+
+        private static void ValidateState(string state)
+        {
+            if (string.IsNullOrWhiteSpace(state))
+                throw new ArgumentException("State can't be empty", nameof(state));
+            if (state.Length < 3 || state.Length > 15)
+                throw new ArgumentOutOfRangeException("State name length can't be less than 3 or greater than 15", nameof(state));
+        }
+
+        private static void ValidateDateOfBirth(DateTime dob)
+        {
+            if (dob > DateTime.UtcNow)
+                throw new ArgumentNullException("Date of birth can't be in the future", nameof(dob));
+
+            var today = DateTime.UtcNow;
+            var age = today.Year - dob.Year;
+
+            if (dob.Date > today.AddYears(-age))
+
+                age--;
+
+            if (age < 18)
+                throw new ArgumentException("Worker must be at least 18 years old", nameof(dob));
+
+
+        }
+    }
+}
