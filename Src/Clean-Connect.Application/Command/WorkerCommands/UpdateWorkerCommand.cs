@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, string Address, string Contact, string Email, Gender Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
+    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, string Address, string Contact, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
 
 
     public class UpdateWorkerValidator : AbstractValidator<UpdateWorkerCommand>
@@ -71,6 +71,8 @@ namespace Clean_Connect.Application.Command.WorkerCommands
     {
         public async Task<bool> Handle(UpdateWorkerCommand request, CancellationToken cancellationToken)
         {
+
+            var gender = Enum.Parse<Gender>(request.Gender, true);
             var worker = await repo.Workers.GetWorkerById(request.WorkerId, cancellationToken);
             if (worker == null)
             {
@@ -99,7 +101,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
             worker.UpdateAddress(request.Address, request.ModifiedBy);
             worker.UpdateDateOfBirth(request.DateOfBirth, request.ModifiedBy);
             worker.UpdateState(request.State, request.ModifiedBy);
-            worker.UpdateGender(request.Gender, request.ModifiedBy);
+            worker.UpdateGender(gender, request.ModifiedBy);
 
             await repo.Workers.UpdateWorker(worker, cancellationToken);
 

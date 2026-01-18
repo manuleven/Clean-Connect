@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.ClientCommands
 {
-    public record CreateClientCommand(string FirstName, string LastName, string Email, string Contact, string Address, Gender Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateClientCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
 
     public class CreateClientValidator : AbstractValidator<CreateClientCommand>
     {
@@ -77,6 +77,8 @@ namespace Clean_Connect.Application.Command.ClientCommands
     {
         public async Task<bool> Handle(CreateClientCommand request, CancellationToken cancellationToken)
         {
+
+            var gender = Enum.Parse<Gender>(request.Gender, true);
             var EmailExists = await repo.Clients.GetByEmail(request.Email.Trim(), cancellationToken);
             if (EmailExists != null)
             {
@@ -92,7 +94,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
                 fullname,
                 address,
                 email,
-                request.Gender,
+                gender,
                 contact,
                 request.State,
                 request.Dob,

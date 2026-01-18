@@ -9,7 +9,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record CreateWorkerCommand(string FirstName, string LastName, string Email, string Contact, string Address, Gender Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateWorkerCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
 
     public class RegisterWorkerValidator : AbstractValidator<CreateWorkerCommand>
     {
@@ -65,6 +65,8 @@ namespace Clean_Connect.Application.Command.WorkerCommands
     {
         public async Task<bool> Handle(CreateWorkerCommand request, CancellationToken cancellationToken)
         {
+            var gender = Enum.Parse<Gender>(request.Gender, true);
+
             var checkExistingEmail = await repo.Workers.GetByEmail(request.Email, cancellationToken);
 
             if (checkExistingEmail != null)
@@ -87,7 +89,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 fullname,
                 address,
                 contact,
-                request.Gender,
+                gender,
                 email,
                 request.State,
                 request.Dob,

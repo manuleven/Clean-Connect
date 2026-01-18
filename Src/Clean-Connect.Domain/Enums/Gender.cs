@@ -5,14 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Clean_Connect.Domain.Enums
-{
-    public class Gender
-    {
-        public enum GenderType
+{ 
+        public enum Gender
         {
             Others = 0,
             Male = 1,
             Female =2
         }
-    }
+   
 }

@@ -8,7 +8,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
 {
 
 
-    public record UpdateClientCommand(Guid ClientId, string FirstName, string LastName, string Address, string Contact, string Email, Gender Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
+    public record UpdateClientCommand(Guid ClientId, string FirstName, string LastName, string Address, string Contact, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
 
     public class UpdateClientValidator : AbstractValidator<UpdateClientCommand>
     {
@@ -69,6 +69,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
     {
         public async Task<bool> Handle(UpdateClientCommand request, CancellationToken cancellationToken)
         {
+            var gender = Enum.Parse<Gender>(request.Gender, true);
             var client = await repo.Clients.GetClientById(request.ClientId, cancellationToken);
             if(client == null)
             {
@@ -98,7 +99,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
             client.UpdateContact(request.Contact, request.ModifiedBy);
             client.UpdateState(request.State, request.ModifiedBy);
             client.UpdateDateOfBirth(request.DateOfBirth, request.ModifiedBy);
-            client.UpdateGender(request.Gender, request.ModifiedBy);
+            client.UpdateGender(gender, request.ModifiedBy);
 
             await repo.Clients.UpdateClient(client, cancellationToken);
             await repo.SaveChangesAsync(cancellationToken);
