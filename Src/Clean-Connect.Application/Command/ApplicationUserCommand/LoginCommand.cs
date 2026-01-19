@@ -1,13 +1,17 @@
-﻿using Clean_Connect.Domain.Entities;
+﻿using Clean_Connect.Application.Command.Auth;
+using Clean_Connect.Application.DTO;
+using Clean_Connect.Domain.Entities;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Clean_Connect.Application.Command.ApplicationUserCommand
 {
-    public record LoginCommand(string Email, string Password, bool RememberMe) : IRequest<Guid>;
+    public record LoginCommand(string Email, string Password, bool RememberMe) : IRequest<LoginResponse>;
 
+   
     public class LoginCommandValidator : AbstractValidator<LoginCommand>
     {
         public LoginCommandValidator()
@@ -27,9 +31,9 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
         }
     }
 
-    public class LoginCommandHandler(UserManager<ApplicationUser> user, SignInManager<ApplicationUser> signInManager, ILogger<RegisterUserCommandHandler> logger) : IRequestHandler<LoginCommand, Guid>
+    public class LoginCommandHandler(UserManager<ApplicationUser> user, IMediator _mediator, SignInManager<ApplicationUser> signInManager, ILogger<RegisterUserCommandHandler> logger) : IRequestHandler<LoginCommand, LoginResponse>
     {
-        public async Task<Guid> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var login = await signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, lockoutOnFailure: false);
             if (!login.Succeeded)
@@ -45,8 +49,15 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                 throw new InvalidOperationException("User not found.");
             }
 
+           var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
+
             logger.LogInformation("User logged in: {Email}", request.Email);
-            return appUser.Id;
+
+            return new LoginResponse
+            {
+                UserId = appUser.Id,
+                Token = token
+            };
 
         }
     }

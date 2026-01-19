@@ -9,6 +9,7 @@ namespace Clean_Connect.Domain.Utilities
 {
     public abstract class BaseEntity
     {
+       
         private readonly List<DomainEvent> domainEvents = new();
         protected BaseEntity()
         {
