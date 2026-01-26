@@ -16,12 +16,13 @@ namespace Clean_Connect.Domain.Entities
     {
         private Worker() { }
 
-        private Worker(FullName name, Address address, PhoneNumber contact, Gender gender, Email email, string state, DateTime dob, string? createdBy = null)
+        private Worker(FullName name, Address address, PhoneNumber contact, Gender gender, Guid ServiceType, Email email, string state, DateTime dob, string? createdBy = null)
         {
             FullName = name ?? throw new ArgumentNullException("name");
             Address = address ?? throw new ArgumentNullException("address");
             Contact = contact ?? throw new ArgumentNullException("contact");
             Gender = gender ;
+            ServiceTypeId = ServiceType;
             Email = email ?? throw new ArgumentNullException("email");
             State = state ?? throw new ArgumentNullException("state");
             ValidateDateOfBirth(dob);
@@ -35,6 +36,10 @@ namespace Clean_Connect.Domain.Entities
         public Address Address { get; private set; } = default!;
 
         public PhoneNumber Contact { get; private set; } = default!;
+
+        public ServiceType ServiceType { get; private set; } = default!;    
+
+        public Guid ServiceTypeId { get; private set; } = default!;
 
         public Gender Gender { get; private set; } = default!;
 
@@ -58,11 +63,11 @@ namespace Clean_Connect.Domain.Entities
             }
         }
 
-        public static Worker Create(FullName name, Address address, PhoneNumber contact, Gender gender, Email email, string state, DateTime dob, string? createdBy = null)
+        public static Worker Create(FullName name, Address address, PhoneNumber contact, Gender gender, Guid serviceTypeId, Email email, string state, DateTime dob, string? createdBy = null)
         {
             ValidateDateOfBirth(dob);
             ValidateState(state);
-            var worker = new Worker(name, address, contact, gender, email, state, dob);
+            var worker = new Worker(name, address, contact, gender, serviceTypeId, email, state, dob);
 
             //domain event
             worker.AddDomainEvent(new WorkerCreatedDomainEvent(worker.Id));
@@ -77,6 +82,13 @@ namespace Clean_Connect.Domain.Entities
             UpdateMetadata(modifiedBy);
         }
 
+        public void UpdateServiceType(Guid newServiceTypeId, string? modifiedBy = null)
+        {
+            if (newServiceTypeId == Guid.Empty)
+                throw new ArgumentException("Service Type Id cannot be empty.", nameof(newServiceTypeId));
+            ServiceTypeId = newServiceTypeId;
+            UpdateMetadata(modifiedBy);
+        }
         public void UpdateName(string newFirstName, string newLastName, string? modifiedBy = null)
         {
 

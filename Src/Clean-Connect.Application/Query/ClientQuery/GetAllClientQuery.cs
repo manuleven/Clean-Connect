@@ -40,6 +40,7 @@ namespace Clean_Connect.Application.Query.ClientQuery
                 Name = client.FullName,
                 Email = client.Email,
                 Address = client.Address,
+                Age = client.Age,
                 Contact = client.PhoneNumber,
                 DateOfBirth = client.DateOfBirth,
                 Gender = client.Gender.ToString(),

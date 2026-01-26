@@ -9,12 +9,14 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record CreateWorkerCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateWorkerCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, Guid ServiceTypeId,  string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
 
     public class RegisterWorkerValidator : AbstractValidator<CreateWorkerCommand>
     {
         public RegisterWorkerValidator()
         {
+
+
             RuleFor(x => x.FirstName)
                 .NotEmpty()
                 .WithMessage("First name is required")
@@ -29,8 +31,14 @@ namespace Clean_Connect.Application.Command.WorkerCommands
 
             RuleFor(x => x.Gender)
                 .NotEmpty()
-                .IsInEnum()
+                .Must(g => Enum.TryParse<Gender>(g, true, out _))
                 .WithMessage("Gender must be Male or Female");
+
+            RuleFor(x => x.ServiceTypeId)
+                .NotEmpty()
+                .WithMessage("Service Type is required")
+                .Must(id => id != Guid.Empty)
+                .WithMessage("Service Type ID cannot be empty");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
@@ -65,7 +73,18 @@ namespace Clean_Connect.Application.Command.WorkerCommands
     {
         public async Task<bool> Handle(CreateWorkerCommand request, CancellationToken cancellationToken)
         {
-            var gender = Enum.Parse<Gender>(request.Gender, true);
+            if (!Enum.TryParse<Gender>(request.Gender, true, out var gender))
+            {
+                throw new ValidationException("Invalid gender value");
+            }
+
+            var checkServiceType = await repo.ServiceTypes.GetByIdAsync(request.ServiceTypeId, cancellationToken);
+            if(checkServiceType == null)
+            {
+                logger.LogWarning("Worker creation failed. ServiceTypeId not found: {ServiceTypeId}", request.ServiceTypeId);
+                throw  new ValidationException("Service Type not found");
+            }
+
 
             var checkExistingEmail = await repo.Workers.GetByEmail(request.Email, cancellationToken);
 
@@ -90,6 +109,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 address,
                 contact,
                 gender,
+                request.ServiceTypeId,
                 email,
                 request.State,
                 request.Dob,

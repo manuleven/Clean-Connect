@@ -40,12 +40,11 @@ namespace Clean_Connect.Api.Controllers
         }
 
         [HttpGet("all-clients")]
-
-        public async Task<ActionResult> GetAllClients([FromQuery]GetAllClientQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetAllClients(CancellationToken cancellationToken)
         {
             logger.LogInformation("Fetching all clients");
             
-            var result = await mediator.Send(query, cancellationToken);
+            var result = await mediator.Send(new GetAllClientQuery(), cancellationToken);
             logger.LogInformation("All clients fetched successfully");
             return Ok(result);
         }

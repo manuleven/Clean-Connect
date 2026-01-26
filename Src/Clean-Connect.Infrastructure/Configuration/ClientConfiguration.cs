@@ -22,6 +22,7 @@ namespace Clean_Connect.Infrastructure.Configuration
                     .HasColumnName("FirstName")
                     .IsRequired()
                     .HasMaxLength(50);
+
                 name.Property(n => n.LastName)
                     .HasColumnName("LastName")
                     .IsRequired()

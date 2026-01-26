@@ -36,6 +36,8 @@ namespace Clean_Connect.Domain.Entities
 
         public Address Address { get; private set; } = default!;
 
+     
+
         public Email Email { get; private set; } = default!;
 
         //Age is computed from DateOfBirth
@@ -103,6 +105,7 @@ namespace Clean_Connect.Domain.Entities
             UpdateMetadata(modifiedBy);
         }
 
+      
         public void UpdateState(string newState,  string? modifiedBy = null)
         {
             ValidateState(newState);

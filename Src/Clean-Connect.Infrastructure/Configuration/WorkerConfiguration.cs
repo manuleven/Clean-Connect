@@ -64,6 +64,11 @@ namespace Clean_Connect.Infrastructure.Configuration
                 .HasConversion<string>()
                 .IsRequired();
 
+            builder.HasOne(x => x.ServiceType)
+                .WithMany(x => x.Workers)
+                .HasForeignKey(x => x.ServiceTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Clean_Connect.Infrastructure.Context
 
         public DbSet<Client> Clients { get; set; }
 
+        public DbSet<ServiceType> ServiceTypes { get; set; }    
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

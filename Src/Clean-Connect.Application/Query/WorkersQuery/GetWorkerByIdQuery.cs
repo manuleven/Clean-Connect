@@ -45,7 +45,9 @@ namespace Clean_Connect.Application.Query.WorkersQuery
                 Address = check.Address,
                 Contact = check.Contact,
                 DateOfBirth = check.DateOfBirth,
+                ServiceType = check.ServiceType.Name,
                 Age = check.Age,
+                State = check.State,
                 Email = check.Email,
                 Gender = check.Gender.ToString()
             };

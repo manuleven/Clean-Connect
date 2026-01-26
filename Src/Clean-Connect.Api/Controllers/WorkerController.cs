@@ -44,21 +44,21 @@ namespace Clean_Connect.Api.Controllers
 
         [HttpGet("all-worker")]
 
-        public async Task<ActionResult> GetAllWorkers(GetAllWorkersQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult> GetAllWorkers(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"GetAllWorkers: {query}");
+            //_logger.LogInformation($"GetAllWorkers: {query}");
 
-            var allWorker = await _mediator.Send(query, cancellationToken);
+            var allWorker = await _mediator.Send(new GetAllWorkersQuery(), cancellationToken);
             _logger.LogInformation("All worker fetched succesfully");
             return Ok(allWorker);
         }
 
         [HttpGet("get-by-worker-id")]
-        public async Task<ActionResult>GetWorkersById(GetWorkerByIdQuery query, CancellationToken cancellationToken)
+        public async Task<ActionResult>GetWorkersById(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Getting worker by id");
-
-            var worker = await _mediator.Send(query,cancellationToken);
+            
+            var worker = await _mediator.Send(new GetWorkerByIdQuery(id),cancellationToken);
 
             _logger.LogInformation("Worker fetched succesfully");
             return Ok(worker);

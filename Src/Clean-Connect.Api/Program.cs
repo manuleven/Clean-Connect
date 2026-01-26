@@ -100,6 +100,7 @@ builder.Services.AddMediatR(cfg =>
 // --------------------
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
+builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // --------------------
@@ -111,6 +112,8 @@ builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Ass
 // MediatR Pipeline Behaviors
 // --------------------
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehaviour<,>));
+
 
 var app = builder.Build();
 

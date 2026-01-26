@@ -129,6 +129,45 @@ namespace Clean_Connect.Persistence.Migrations
                     b.ToTable("Clients");
                 });
 
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.ServiceType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceTypes");
+                });
+
             modelBuilder.Entity("Clean_Connect.Domain.Entities.Worker", b =>
                 {
                     b.Property<Guid>("Id")
@@ -157,12 +196,17 @@ namespace Clean_Connect.Persistence.Migrations
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("ServiceTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ServiceTypeId");
 
                     b.ToTable("Workers");
                 });
@@ -397,6 +441,12 @@ namespace Clean_Connect.Persistence.Migrations
 
             modelBuilder.Entity("Clean_Connect.Domain.Entities.Worker", b =>
                 {
+                    b.HasOne("Clean_Connect.Domain.Entities.ServiceType", "ServiceType")
+                        .WithMany("Workers")
+                        .HasForeignKey("ServiceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.OwnsOne("Clean_Connect.Domain.Value_Objects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("WorkerId")
@@ -490,6 +540,8 @@ namespace Clean_Connect.Persistence.Migrations
 
                     b.Navigation("FullName")
                         .IsRequired();
+
+                    b.Navigation("ServiceType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -541,6 +593,11 @@ namespace Clean_Connect.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.ServiceType", b =>
+                {
+                    b.Navigation("Workers");
                 });
 #pragma warning restore 612, 618
         }

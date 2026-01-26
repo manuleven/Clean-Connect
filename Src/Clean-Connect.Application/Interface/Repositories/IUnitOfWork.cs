@@ -9,8 +9,13 @@ namespace Clean_Connect.Application.Interface.Repositories
     public interface IUnitOfWork
     {
         IWorkerRepository Workers { get; } 
-
+        IServiceTypeRepository ServiceTypes { get; }
         IClientRepository Clients { get; }
+        Task BeginTransactionAsync(CancellationToken cancellation);
+
+        Task CommitTransactionAsync(CancellationToken cancellation);
+
+        Task RollbackTransactionAsync(CancellationToken cancellation);
 
         Task<int> SaveChangesAsync(CancellationToken cancellation);
     }

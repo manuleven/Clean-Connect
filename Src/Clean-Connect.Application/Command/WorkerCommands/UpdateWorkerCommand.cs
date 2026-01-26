@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, string Address, string Contact, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
+    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, string Address, string Contact, Guid ServiceTypeId, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
 
 
     public class UpdateWorkerValidator : AbstractValidator<UpdateWorkerCommand>
@@ -26,6 +26,12 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 .WithMessage("Last name is required")
                 .Length(2, 50)
                 .WithMessage("Last name must be between 2-50 characters");
+
+            RuleFor(x => x.ServiceTypeId)
+                .NotEmpty()
+                .WithMessage("Service type ID is required")
+                .Must(id => id != Guid.Empty)
+                .WithMessage("Service type ID cannot be empty");
 
             RuleFor(x => x.Address)
                 .NotEmpty()
@@ -56,8 +62,8 @@ namespace Clean_Connect.Application.Command.WorkerCommands
 
             RuleFor(x => x.Gender)
                 .NotEmpty()
-                .WithMessage("Gender is required")
-                .IsInEnum();
+                .Must(g => Enum.TryParse<Gender>(g, true, out _))
+                .WithMessage("Gender must be Male or Female");
 
             RuleFor(x => x.DateOfBirth)
                 .NotEmpty()
@@ -72,7 +78,18 @@ namespace Clean_Connect.Application.Command.WorkerCommands
         public async Task<bool> Handle(UpdateWorkerCommand request, CancellationToken cancellationToken)
         {
 
-            var gender = Enum.Parse<Gender>(request.Gender, true);
+            if (!Enum.TryParse<Gender>(request.Gender, true, out var gender))
+            {
+                throw new ValidationException("Invalid gender value");
+            }
+
+            var serviceType = await repo.ServiceTypes.GetByIdAsync(request.ServiceTypeId, cancellationToken);
+            if(serviceType == null)
+            {
+                logger.LogError("Service Type with ID {ServiceTypeId} not found", request.ServiceTypeId);
+                throw new KeyNotFoundException($"Service Type with ID {request.ServiceTypeId} not found");
+            }
+
             var worker = await repo.Workers.GetWorkerById(request.WorkerId, cancellationToken);
             if (worker == null)
             {
@@ -80,8 +97,10 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 throw new KeyNotFoundException($"Worker with ID {request.WorkerId} not found");
             }
 
+           
             var email = request.Email.Trim();
 
+            
             var checkExistingEmail = await repo.Workers.GetByEmail(request.Email, cancellationToken);
 
             if(checkExistingEmail != null &&  checkExistingEmail.Id != request.WorkerId)
@@ -98,6 +117,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
             worker.UpdateName(request.LastName, request.FirstName, request.ModifiedBy);
             worker.UpdateContact(request.Contact, request.ModifiedBy);
             worker.UpdateEmail(request.Email, request.ModifiedBy);
+            worker.UpdateServiceType(request.ServiceTypeId, request.ModifiedBy);
             worker.UpdateAddress(request.Address, request.ModifiedBy);
             worker.UpdateDateOfBirth(request.DateOfBirth, request.ModifiedBy);
             worker.UpdateState(request.State, request.ModifiedBy);

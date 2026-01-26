@@ -42,8 +42,8 @@ namespace Clean_Connect.Application.Command.ClientCommands
 
             RuleFor(x => x.Gender)
                 .NotEmpty()
-                .WithMessage("Gender is required")
-                .IsInEnum();
+                .Must(g => Enum.TryParse<Gender>(g, true, out _))
+                .WithMessage("Gender must be Male or Female");
 
             RuleFor(x => x.State)
                 .NotEmpty()
@@ -69,7 +69,11 @@ namespace Clean_Connect.Application.Command.ClientCommands
     {
         public async Task<bool> Handle(UpdateClientCommand request, CancellationToken cancellationToken)
         {
-            var gender = Enum.Parse<Gender>(request.Gender, true);
+            if (!Enum.TryParse<Gender>(request.Gender, true, out var gender))
+            {
+                throw new ValidationException("Invalid gender value");
+            }
+
             var client = await repo.Clients.GetClientById(request.ClientId, cancellationToken);
             if(client == null)
             {

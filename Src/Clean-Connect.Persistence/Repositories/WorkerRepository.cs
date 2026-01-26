@@ -19,17 +19,17 @@ namespace Clean_Connect.Persistence.Repositories
 
         public async Task <Worker> GetByEmail(string email, CancellationToken cancellationToken)
         {
-            return await dbContext.Workers.FirstOrDefaultAsync(x  => x.Email == email.Trim());
+            return await dbContext.Workers.FirstOrDefaultAsync(x  => x.Email.Value == email.Trim());
             
         }
         public async Task<Worker> GetWorkerById(Guid workerId, CancellationToken cancellationToken)
         {
-            return await dbContext.Workers.FirstOrDefaultAsync(x => x.Id == workerId);
+            return await dbContext.Workers.Include(s => s.ServiceType).FirstOrDefaultAsync(x => x.Id == workerId);
         }
 
         public async Task<IEnumerable<Worker>> GetAllWorkers(CancellationToken cancellationToken)
         {
-            return await dbContext.Workers.ToListAsync(cancellationToken);
+            return await dbContext.Workers.Include(s => s.ServiceType).ToListAsync(cancellationToken);
         }
 
         public async Task UpdateWorker(Worker worker, CancellationToken cancellationToken)

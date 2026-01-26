@@ -24,7 +24,8 @@ namespace Clean_Connect.Persistence.Repositories
 
         public async Task<Client> GetByEmail(string email, CancellationToken cancellationToken)
         {
-            return await dbContext.Clients.FirstOrDefaultAsync(x => x.Email == email.Trim());
+            var normalized = email.Trim().ToLowerInvariant();
+            return await dbContext.Clients.FirstOrDefaultAsync(x => x.Email.Value == normalized);
             
         }
         public async Task<Client> GetClientById(Guid clientId, CancellationToken cancellationToken)

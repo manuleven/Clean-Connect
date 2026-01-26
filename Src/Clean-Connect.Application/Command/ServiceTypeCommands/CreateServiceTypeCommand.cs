@@ -1,0 +1,81 @@
+﻿using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Domain.Entities;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Clean_Connect.Application.Command.ServiceTypeCommands
+{
+    public record CreateServiceTypeCommand(string Name, string Description, decimal Amount, string? CreatedBy = null) : IRequest<bool>;
+
+    public class CreateServiceValidator : AbstractValidator<CreateServiceTypeCommand>
+    {
+        public CreateServiceValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Service name is required")
+                .Length(10, 50)
+                .WithMessage("Service name must be between 20 - 50 character");
+
+
+            RuleFor(x => x.Description)
+                .NotEmpty()
+                .WithMessage("Description is required")
+                .Length(20, 50)
+                .WithMessage("Service name must be between 20 - 50 character");
+
+            RuleFor(x => x.Amount)
+                .GreaterThan(0)
+                .LessThanOrEqualTo(1_000_000)
+                .PrecisionScale(18, 2, true)
+                .WithMessage("Invalid amount");
+
+
+
+
+        }
+
+        public class CreateServiceHandler : IRequestHandler<CreateServiceTypeCommand, bool>
+        {
+            private readonly ILogger<CreateServiceHandler> logger;
+            private readonly IUnitOfWork repo;
+            public CreateServiceHandler(ILogger<CreateServiceHandler> _logger, IUnitOfWork _repo)
+            {
+                logger = _logger;
+                repo = _repo;
+            }
+
+            public async Task<bool> Handle(CreateServiceTypeCommand request, CancellationToken cancellationToken)
+            {
+                try
+                {
+                    var checkexisting = await repo.ServiceTypes.CheckExistingByName(request.Name.ToLower(), cancellationToken);
+                    if (checkexisting)
+                    {
+                        logger.LogWarning("Service type '{ServiceName}' already exists.", request.Name);
+                        return await Task.FromResult(false);
+                    }
+
+                    var serviceType = ServiceType.Create(
+                        request.Name,
+                        request.Description,
+                        request.Amount,
+                        request.CreatedBy
+                        );
+
+                    await repo.ServiceTypes.AddAsync(serviceType, cancellationToken);
+                    await repo.SaveChangesAsync(cancellationToken);
+
+                    logger.LogInformation("Service type '{ServiceName}' created successfully by {CreatedBy}.", request.Name, request.CreatedBy ?? "System");
+                    return await Task.FromResult(true);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error occurred while creating service type '{ServiceName}'.", request.Name);
+                    return await Task.FromResult(false);
+                }
+            }
+        }
+    }
+}
