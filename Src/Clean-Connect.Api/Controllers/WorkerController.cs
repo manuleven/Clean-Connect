@@ -1,4 +1,5 @@
 ﻿using Clean_Connect.Application.Command.WorkerCommands;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Query.WorkersQuery;
 using Clean_Connect.Domain.Entities;
 using MediatR;
@@ -32,6 +33,31 @@ namespace Clean_Connect.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{bookingId}/accept")]
+        public async Task<IActionResult> AcceptBooking(Guid bookingId, [FromBody] AcceptBookingCommand command, CancellationToken cancellationToken)
+        {
+            command = command with { BookingId = bookingId };
+
+            _logger.LogInformation("Worker {WorkerId} accepting booking {BookingId}",
+                command.WorkerId, bookingId);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+        [HttpPost("{bookingId}/Reject")]
+        public async Task<IActionResult> RejectBooking(Guid bookingId, [FromBody] RejectBookingCommand command, CancellationToken cancellationToken)
+        {
+            command = command with { BookingId = bookingId };
+
+            _logger.LogInformation("Worker {WorkerId} Rejecting booking {BookingId}",
+                command.WorkerId, bookingId);
+
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
         [HttpPut("update-worker")]
 
         public async Task<ActionResult> UpdateWorker([FromBody] UpdateWorkerCommand worker, CancellationToken cancellationToken)
@@ -53,15 +79,32 @@ namespace Clean_Connect.Api.Controllers
             return Ok(allWorker);
         }
 
-        [HttpGet("get-by-worker-id")]
-        public async Task<ActionResult>GetWorkersById(Guid id, CancellationToken cancellationToken)
+        [HttpGet("get-worker-by-id")]
+        public async Task<ActionResult> GetWorkersById(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Getting worker by id");
-            
-            var worker = await _mediator.Send(new GetWorkerByIdQuery(id),cancellationToken);
+
+            var worker = await _mediator.Send(new GetWorkerByIdQuery(id), cancellationToken);
 
             _logger.LogInformation("Worker fetched succesfully");
             return Ok(worker);
+        }
+        [HttpGet("get-worker-booking-by-id")]
+        public async Task<ActionResult> GetWorkerBookingsById(Guid id, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Getting worker booking by id");
+
+            var worker = await _mediator.Send(new GetAllWorkerBookingsQuery(id), cancellationToken);
+
+            _logger.LogInformation("Worker booking fetched succesfully");
+            return Ok(worker);
+        }
+
+        [HttpPost("nearby")]
+        public async Task<ActionResult<List<WorkerDto>>> GetNearbyWorkers([FromBody] GetNearByWorkersQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
     }

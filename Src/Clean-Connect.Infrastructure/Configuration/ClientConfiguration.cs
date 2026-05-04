@@ -45,6 +45,23 @@ namespace Clean_Connect.Infrastructure.Configuration
                     .HasMaxLength(200);
             });
 
+            builder.OwnsOne(b => b.Location, loc =>
+            {
+                loc.Property(l => l.Latitude)
+                .IsRequired()
+                .HasColumnType("decimal(9,6)")
+                .HasColumnName("Latitude");
+
+                loc.Property(l => l.Longitude)
+                .IsRequired()
+                .HasColumnType("decimal(9,6)")
+                .HasColumnName("Longitude");
+
+                loc.Property(l => l.Point)
+                .HasColumnType("geography")
+                .HasColumnName("LocationPoint");
+            });
+
             builder.OwnsOne(c => c.PhoneNumber, contact =>
             {
                 contact.Property(c => c.Value)

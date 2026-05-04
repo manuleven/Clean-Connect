@@ -20,6 +20,7 @@
           "Microsoft.AspNetCore.Mvc.DataAnnotations": "2.3.8",
           "Microsoft.EntityFrameworkCore": "9.0.11",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.11",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "9.0.8",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.11",
           "Serilog": "4.3.0",
           "Serilog.Sinks.Console": "6.1.1",
@@ -735,6 +736,25 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite/9.0.8": {
+        "dependencies": {
+          "Microsoft.Data.SqlClient": "5.1.6",
+          "Microsoft.EntityFrameworkCore.SqlServer": "9.0.11",
+          "Microsoft.Extensions.Caching.Memory": "9.0.11",
+          "Microsoft.Extensions.Configuration.Abstractions": "9.0.11",
+          "Microsoft.Extensions.Logging": "9.0.11",
+          "NetTopologySuite": "2.5.0",
+          "NetTopologySuite.IO.SqlServerBytes": "2.1.0",
+          "System.Formats.Asn1": "9.0.11",
+          "System.Text.Json": "9.0.11"
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite.dll": {
+            "assemblyVersion": "9.0.8.0",
+            "fileVersion": "9.0.825.36802"
+          }
+        }
+      },
       "Microsoft.EntityFrameworkCore.Tools/9.0.11": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Design": "9.0.11"
@@ -1057,6 +1077,28 @@
           "lib/net6.0/Mono.TextTemplating.dll": {
             "assemblyVersion": "3.0.0.0",
             "fileVersion": "3.0.0.1"
+          }
+        }
+      },
+      "NetTopologySuite/2.5.0": {
+        "dependencies": {
+          "System.Memory": "4.5.4"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NetTopologySuite.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "NetTopologySuite.IO.SqlServerBytes/2.1.0": {
+        "dependencies": {
+          "NetTopologySuite": "2.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/NetTopologySuite.IO.SqlServerBytes.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
           }
         }
       },
@@ -1408,6 +1450,7 @@
       },
       "Clean-Connect.Domain/1.0.0": {
         "dependencies": {
+          "MediatR": "14.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.11",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "9.0.8",
           "Microsoft.AspNetCore.Identity.UI": "9.0.8",
@@ -1415,6 +1458,7 @@
           "Microsoft.AspNetCore.Mvc.DataAnnotations": "2.3.8",
           "Microsoft.EntityFrameworkCore": "9.0.11",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.11",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "9.0.8",
           "Serilog.Sinks.Console": "6.1.1",
           "Serilog.Sinks.File": "7.0.0",
           "Swashbuckle.AspNetCore.Annotations": "9.0.6",
@@ -1437,6 +1481,7 @@
           "Microsoft.EntityFrameworkCore": "9.0.11",
           "Microsoft.EntityFrameworkCore.Abstractions": "9.0.11",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.11",
+          "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite": "9.0.8",
           "Serilog.Sinks.Console": "6.1.1",
           "Serilog.Sinks.File": "7.0.0",
           "Swashbuckle.AspNetCore.Annotations": "9.0.6",
@@ -1795,6 +1840,13 @@
       "path": "microsoft.entityframeworkcore.sqlserver/9.0.11",
       "hashPath": "microsoft.entityframeworkcore.sqlserver.9.0.11.nupkg.sha512"
     },
+    "Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite/9.0.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JphklIoZkb203Mmi6hxeKdfgIIVShw4rovfMJ/sUfFu9HmheeM2OCgJ16m4JHc24sJzU9YRhgGd7nA0o9U+uDQ==",
+      "path": "microsoft.entityframeworkcore.sqlserver.nettopologysuite/9.0.8",
+      "hashPath": "microsoft.entityframeworkcore.sqlserver.nettopologysuite.9.0.8.nupkg.sha512"
+    },
     "Microsoft.EntityFrameworkCore.Tools/9.0.11": {
       "type": "package",
       "serviceable": true,
@@ -2025,6 +2077,20 @@
       "sha512": "sha512-YqueG52R/Xej4VVbKuRIodjiAhV0HR/XVbLbNrJhCZnzjnSjgMJ/dCdV0akQQxavX6hp/LC6rqLGLcXeQYU7XA==",
       "path": "mono.texttemplating/3.0.0",
       "hashPath": "mono.texttemplating.3.0.0.nupkg.sha512"
+    },
+    "NetTopologySuite/2.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5/+2O2ADomEdUn09mlSigACdqvAf0m/pVPGtIPEPQWnyrVykYY0NlfXLIdkMgi41kvH9kNrPqYaFBTZtHYH7Xw==",
+      "path": "nettopologysuite/2.5.0",
+      "hashPath": "nettopologysuite.2.5.0.nupkg.sha512"
+    },
+    "NetTopologySuite.IO.SqlServerBytes/2.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-R4BcV19f2l6EjHSjh/EHwLhYQHrOov9vig1EW5oBm0iqlZOgaIJm5tBnlbFnYlvdYOPuf5p0Qtf8PCVwH77Wbg==",
+      "path": "nettopologysuite.io.sqlserverbytes/2.1.0",
+      "hashPath": "nettopologysuite.io.sqlserverbytes.2.1.0.nupkg.sha512"
     },
     "Newtonsoft.Json/12.0.2": {
       "type": "package",

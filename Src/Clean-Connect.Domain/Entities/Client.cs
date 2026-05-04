@@ -17,12 +17,13 @@ namespace Clean_Connect.Domain.Entities
 
 
         // Private constructor to initialize properties
-        private Client(FullName name, Address address, Email email, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
+        private Client(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
         {
             FullName = name ?? throw new ArgumentNullException(nameof(name));
             Address = address ?? throw new ArgumentNullException(nameof(address));
             Email = email ?? throw new ArgumentNullException(nameof(email));
             Gender = gender;
+            Location = location;
             PhoneNumber = contact ?? throw new ArgumentException(nameof(contact));
             ValidateState(state);
             State = state;
@@ -35,6 +36,10 @@ namespace Clean_Connect.Domain.Entities
         public FullName FullName { get; private set; } = default!;
 
         public Address Address { get; private set; } = default!;
+
+        public Location Location { get; private set; } = default!;
+
+        public List<Booking> Bookings { get; private set; }
 
      
 
@@ -63,12 +68,12 @@ namespace Clean_Connect.Domain.Entities
         public DateTime DateOfBirth { get; private set; }
 
         // Factory method to create a new Clients instance
-        public static Client Create(FullName name, Address address, Email email, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
+        public static Client Create(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
         {
             ValidateDateOfBirth(dob);
             ValidateState(state);
 
-            var client = new Client(name, address, email, gender, contact, state, dob);
+            var client = new Client(name, address, email, location, gender, contact, state, dob);
             //Domain Event
             client.AddDomainEvent(new ClientCreatedDomainEvent(client.Id));
 
@@ -88,6 +93,12 @@ namespace Clean_Connect.Domain.Entities
         public void UpdateAddress(string newAddress, string? modifiedBy = null)
         {
             Address = Address.Create(newAddress);
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateLocation(double Latitude, double Longitude, string? modifiedBy = null)
+        {
+            Location = Location.Create(Latitude, Longitude);
             UpdateMetadata(modifiedBy);
         }
 

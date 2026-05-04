@@ -1,4 +1,5 @@
-﻿using Clean_Connect.Application.Interface.Repositories;
+﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Value_Objects;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.ClientCommands
 {
-    public record CreateClientCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateClientCommand(string FirstName, string LastName, string Email, double Latitude, double Longitude, string Contact,  string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
 
     public class CreateClientValidator : AbstractValidator<CreateClientCommand>
     {
@@ -33,17 +34,20 @@ namespace Clean_Connect.Application.Command.ClientCommands
                 .Length(2, 50)
                 .WithMessage("Last name must be between 2-50 characters");
 
-            RuleFor(x => x.Address)
-                .NotEmpty()
-                .WithMessage("Address is required")
-                .Length(10, 200)
-                .WithMessage("Address must be between 10-200 characters");
+            
 
             RuleFor(x => x.Gender)
                 .NotEmpty()
                 .Must(g => Enum.TryParse<Gender>(g, true, out _))
                 .WithMessage("Gender must be Male or Female");
 
+            RuleFor(x => x.Latitude)
+               .InclusiveBetween(4.0, 14.0)
+               .WithMessage("Latitude must be between 4.0 and 14.0.");
+
+            RuleFor(x => x.Longitude)
+                .InclusiveBetween(2.5, 15.5)
+                .WithMessage("Longitude must be between 2.5 and 15.5.");
 
 
             RuleFor(x => x.Email)
@@ -74,7 +78,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
 
     }
 
-    public class CreateClientCommandHandler(IUnitOfWork repo, ILogger<CreateClientCommandHandler>logger) : IRequestHandler<CreateClientCommand, bool>
+    public class CreateClientCommandHandler(IUnitOfWork repo, GeocodingService geocodingService, ILogger<CreateClientCommandHandler>logger) : IRequestHandler<CreateClientCommand, bool>
     {
         public async Task<bool> Handle(CreateClientCommand request, CancellationToken cancellationToken)
         {
@@ -92,14 +96,21 @@ namespace Clean_Connect.Application.Command.ClientCommands
                 throw new DuplicateNameException($"Client with email {request.Email} already exists");
             }
 
+
+
             var fullname = FullName.Create(request.FirstName, request.LastName);
             var email = Email.Create(request.Email);
-            var address = Address.Create(request.Address);
+            var location = Location.Create(request.Latitude, request.Longitude);
+            var discoverAddress = await geocodingService.GetAddressAsync(request.Latitude, request.Longitude);
+            if (!discoverAddress.Contains("Nigeria"))
+                throw new Exception("Location must be in Nigeria.");
+            var address = Address.Create(discoverAddress);
             var contact = PhoneNumber.Create(request.Contact);
             var client = Client.Create(
                 fullname,
                 address,
                 email,
+                location,
                 gender,
                 contact,
                 request.State,

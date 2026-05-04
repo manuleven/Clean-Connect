@@ -18,6 +18,9 @@ namespace Clean_Connect.Infrastructure.Context
 
         public DbSet<ServiceType> ServiceTypes { get; set; }    
 
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Ratings> Ratings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,5 +1,6 @@
 ﻿using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Repositories;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,6 +12,18 @@ using System.Threading.Tasks;
 namespace Clean_Connect.Application.Query.WorkersQuery
 {
     public record GetWorkerByIdQuery(Guid Id) : IRequest<WorkerDto>;
+
+    public class GetWorkerByIdValidator : AbstractValidator<GetWorkerByIdQuery>
+    {
+        public GetWorkerByIdValidator()
+        {
+            RuleFor(x => x.Id)
+                .NotEmpty()
+                .WithMessage("Worker Id is required")
+                .Must(id => id != Guid.Empty)
+                .WithMessage("Worker ID cannot be empty");
+        }
+    }
 
     public class GetWorkerByIdQueryHandler : IRequestHandler<GetWorkerByIdQuery, WorkerDto>
     {
@@ -25,11 +38,7 @@ namespace Clean_Connect.Application.Query.WorkersQuery
         }
         public async Task<WorkerDto> Handle(GetWorkerByIdQuery request, CancellationToken cancellationToken)
         {
-            if (request.Id == Guid.Empty)
-            {
-                logger.LogError("GetWorkerByIdQueryHandler: Invalid Id provided.");
-                throw new KeyNotFoundException("Invalid Id provided.");
-            }
+           
 
             var check = await repo.Workers.GetWorkerById(request.Id, cancellationToken);
 
@@ -46,7 +55,9 @@ namespace Clean_Connect.Application.Query.WorkersQuery
                 Contact = check.Contact,
                 DateOfBirth = check.DateOfBirth,
                 ServiceType = check.ServiceType.Name,
+                //Location = check.Location.ToString(),
                 Age = check.Age,
+                Rating = check.AverageRating,
                 State = check.State,
                 Email = check.Email,
                 Gender = check.Gender.ToString()

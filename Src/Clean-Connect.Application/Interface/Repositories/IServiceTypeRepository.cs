@@ -19,6 +19,7 @@ namespace Clean_Connect.Application.Interface.Repositories
 
         Task UpdateAsync(ServiceType serviceType, CancellationToken cancellationToken);
 
+        //Task<List<ServiceType>> GetByName(string name, CancellationToken cancellationToken);
         Task<ServiceType> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
         Task<List<ServiceType>> GetAllAsync(CancellationToken cancellationToken);

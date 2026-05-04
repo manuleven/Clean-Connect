@@ -1,4 +1,5 @@
-﻿using Clean_Connect.Application.Interface.Repositories;
+﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Value_Objects;
@@ -9,7 +10,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record CreateWorkerCommand(string FirstName, string LastName, string Email, string Contact, string Address, string Gender, Guid ServiceTypeId,  string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateWorkerCommand(string FirstName, string LastName,double Latitude, double Longitude, string Email, string Contact, string Gender, Guid ServiceTypeId,  string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
 
     public class RegisterWorkerValidator : AbstractValidator<CreateWorkerCommand>
     {
@@ -29,6 +30,15 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 .Length(2, 50)
                 .WithMessage("Last name must be between 2-50 characters");
 
+            RuleFor(x => x.Latitude)
+               .InclusiveBetween(4.0, 14.0)
+               .WithMessage("Latitude must be between 4.0 and 14.0.");
+
+            RuleFor(x => x.Longitude)
+                .InclusiveBetween(2.5, 15.5)
+                .WithMessage("Longitude must be between 2.5 and 15.5.");
+
+
             RuleFor(x => x.Gender)
                 .NotEmpty()
                 .Must(g => Enum.TryParse<Gender>(g, true, out _))
@@ -38,7 +48,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 .NotEmpty()
                 .WithMessage("Service Type is required")
                 .Must(id => id != Guid.Empty)
-                .WithMessage("Service Type ID cannot be empty");
+                .WithMessage("Invalid Id");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
@@ -54,22 +64,19 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 .Length(11, 15)
                 .WithMessage("Contact must be between 11-15 characters");
 
-            RuleFor(x => x.Address)
-                .NotEmpty()
-                .WithMessage("Address is required")
-                .Length(10, 200)
-                .WithMessage("Address must be between 10-200 characters");
-
             RuleFor(x => x.State)
-                .NotEmpty().WithMessage("State is required")
-                .Length(3, 15).WithMessage("State name must be 3-15 characters");
+                .NotEmpty()
+                .WithMessage("State is required")
+                .Length(3, 15)
+                .WithMessage("State name must be 3-15 characters");
 
             RuleFor(x => x.Dob)
-                .LessThan(DateTime.UtcNow).WithMessage("Date of birth cannot be in the future");
+                .LessThan(DateTime.UtcNow)
+                .WithMessage("Date of birth cannot be in the future");
 
         }
     }
-    public class CreateWorkerHandler(IUnitOfWork repo, ILogger<CreateWorkerHandler> logger) : IRequestHandler<CreateWorkerCommand, bool>
+    public class CreateWorkerHandler(IUnitOfWork repo, GeocodingService geocodingService, ILogger<CreateWorkerHandler> logger) : IRequestHandler<CreateWorkerCommand, bool>
     {
         public async Task<bool> Handle(CreateWorkerCommand request, CancellationToken cancellationToken)
         {
@@ -99,7 +106,11 @@ namespace Clean_Connect.Application.Command.WorkerCommands
 
             var fullname = FullName.Create(request.FirstName, request.LastName);
             var email = Email.Create(request.Email);
-            var address = Address.Create(request.Address);
+            var location = Location.Create(request.Latitude, request.Longitude);
+            var discoverAddress = await geocodingService.GetAddressAsync(request.Latitude, request.Longitude);
+            if (!discoverAddress.Contains("Nigeria"))
+                throw new Exception("Location must be in Nigeria.");
+            var address = Address.Create(discoverAddress);
             var contact = PhoneNumber.Create(request.Contact);
 
 
@@ -108,6 +119,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 fullname,
                 address,
                 contact,
+                location,
                 gender,
                 request.ServiceTypeId,
                 email,

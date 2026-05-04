@@ -23,6 +23,11 @@ namespace Clean_Connect.Persistence.Repositories
             return await context.ServiceTypes.AnyAsync(s => s.Name.ToLower() == name.ToLower());
         }
 
+        //public async Task<List<ServiceType>> GetByName(string name, CancellationToken cancellationToken)
+        //{
+        //    return await context.ServiceTypes.Where(s => s.Name.ToLower() == name.ToLower()).ToListAsync();
+
+        //}
         public async Task AddRangeAsync(IEnumerable<ServiceType> serviceTypes, CancellationToken cancellationToken)
         {
             await context.ServiceTypes.AddRangeAsync(serviceTypes);

@@ -6,14 +6,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 
 #nullable disable
 
 namespace Clean_Connect.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260125222829_initial-create")]
-    partial class initialcreate
+    [Migration("20260430123124_clientlocation")]
+    partial class clientlocation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -94,6 +95,69 @@ namespace Clean_Connect.Persistence.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Booking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("BookingStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfBooking")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateOfService")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ServiceTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TimeRange")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("WorkerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("ServiceTypeId");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("Bookings");
+                });
+
             modelBuilder.Entity("Clean_Connect.Domain.Entities.Client", b =>
                 {
                     b.Property<Guid>("Id")
@@ -130,6 +194,63 @@ namespace Clean_Connect.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Ratings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("AverageRating")
+                        .HasColumnType("float");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BookingId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RatingValue")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WorkerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("BookingId1")
+                        .IsUnique()
+                        .HasFilter("[BookingId1] IS NOT NULL");
+
+                    b.HasIndex("WorkerId");
+
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("Clean_Connect.Domain.Entities.ServiceType", b =>
@@ -177,6 +298,12 @@ namespace Clean_Connect.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<double>("AverageRating")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(3, 2)
+                        .HasColumnType("float(3)")
+                        .HasDefaultValue(0.0);
+
                     b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -206,6 +333,11 @@ namespace Clean_Connect.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
+
+                    b.Property<int>("TotalRating")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
@@ -345,6 +477,87 @@ namespace Clean_Connect.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Booking", b =>
+                {
+                    b.HasOne("Clean_Connect.Domain.Entities.Client", "Client")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Clean_Connect.Domain.Entities.ServiceType", "ServiceType")
+                        .WithMany()
+                        .HasForeignKey("ServiceTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Clean_Connect.Domain.Entities.Worker", "Worker")
+                        .WithMany("Bookings")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Clean_Connect.Domain.Value_Objects.Address", "Address", b1 =>
+                        {
+                            b1.Property<Guid>("BookingId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("Address");
+
+                            b1.HasKey("BookingId");
+
+                            b1.ToTable("Bookings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookingId");
+                        });
+
+                    b.OwnsOne("Clean_Connect.Domain.Value_Objects.Location", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("BookingId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Longitude");
+
+                            b1.Property<Point>("Point")
+                                .IsRequired()
+                                .HasColumnType("geography")
+                                .HasColumnName("LocationPoint");
+
+                            b1.HasKey("BookingId");
+
+                            b1.HasIndex("Point")
+                                .HasDatabaseName("IX_Workers_LocationPoint");
+
+                            b1.ToTable("Bookings");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookingId");
+                        });
+
+                    b.Navigation("Address")
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Location")
+                        .IsRequired();
+
+                    b.Navigation("ServiceType");
+
+                    b.Navigation("Worker");
+                });
+
             modelBuilder.Entity("Clean_Connect.Domain.Entities.Client", b =>
                 {
                     b.OwnsOne("Clean_Connect.Domain.Value_Objects.Address", "Address", b1 =>
@@ -410,6 +623,32 @@ namespace Clean_Connect.Persistence.Migrations
                                 .HasForeignKey("ClientId");
                         });
 
+                    b.OwnsOne("Clean_Connect.Domain.Value_Objects.Location", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("ClientId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Longitude");
+
+                            b1.Property<Point>("Point")
+                                .IsRequired()
+                                .HasColumnType("geography")
+                                .HasColumnName("LocationPoint");
+
+                            b1.HasKey("ClientId");
+
+                            b1.ToTable("Clients");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ClientId");
+                        });
+
                     b.OwnsOne("Clean_Connect.Domain.Value_Objects.PhoneNumber", "PhoneNumber", b1 =>
                         {
                             b1.Property<Guid>("ClientId")
@@ -438,8 +677,32 @@ namespace Clean_Connect.Persistence.Migrations
                     b.Navigation("FullName")
                         .IsRequired();
 
+                    b.Navigation("Location")
+                        .IsRequired();
+
                     b.Navigation("PhoneNumber")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Ratings", b =>
+                {
+                    b.HasOne("Clean_Connect.Domain.Entities.Booking", null)
+                        .WithOne()
+                        .HasForeignKey("Clean_Connect.Domain.Entities.Ratings", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Clean_Connect.Domain.Entities.Booking", null)
+                        .WithOne("Ratings")
+                        .HasForeignKey("Clean_Connect.Domain.Entities.Ratings", "BookingId1");
+
+                    b.HasOne("Clean_Connect.Domain.Entities.Worker", "Worker")
+                        .WithMany("Ratings")
+                        .HasForeignKey("WorkerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Worker");
                 });
 
             modelBuilder.Entity("Clean_Connect.Domain.Entities.Worker", b =>
@@ -532,6 +795,32 @@ namespace Clean_Connect.Persistence.Migrations
                                 .HasForeignKey("WorkerId");
                         });
 
+                    b.OwnsOne("Clean_Connect.Domain.Value_Objects.Location", "Location", b1 =>
+                        {
+                            b1.Property<Guid>("WorkerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Latitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Latitude");
+
+                            b1.Property<decimal>("Longitude")
+                                .HasColumnType("decimal(9,6)")
+                                .HasColumnName("Longitude");
+
+                            b1.Property<Point>("Point")
+                                .IsRequired()
+                                .HasColumnType("geography")
+                                .HasColumnName("LocationPoint");
+
+                            b1.HasKey("WorkerId");
+
+                            b1.ToTable("Workers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("WorkerId");
+                        });
+
                     b.Navigation("Address")
                         .IsRequired();
 
@@ -542,6 +831,9 @@ namespace Clean_Connect.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("FullName")
+                        .IsRequired();
+
+                    b.Navigation("Location")
                         .IsRequired();
 
                     b.Navigation("ServiceType");
@@ -598,9 +890,27 @@ namespace Clean_Connect.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Booking", b =>
+                {
+                    b.Navigation("Ratings")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Client", b =>
+                {
+                    b.Navigation("Bookings");
+                });
+
             modelBuilder.Entity("Clean_Connect.Domain.Entities.ServiceType", b =>
                 {
                     b.Navigation("Workers");
+                });
+
+            modelBuilder.Entity("Clean_Connect.Domain.Entities.Worker", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Ratings");
                 });
 #pragma warning restore 612, 618
         }

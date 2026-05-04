@@ -1,4 +1,5 @@
 ﻿using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace Clean_Connect.Application.Interface.Repositories
         Task DeleteWorker(Worker worker, CancellationToken cancellationToken);
 
         Task<Worker> GetByEmail(string email, CancellationToken cancellationToken);
+        Task<List<WorkerWithDistance>> GetNearByWorkersAsync(double latitude, double longitude, double radiusInMeters, Guid serviceType);
+
 
         Task<Worker> GetWorkerByName(string name, CancellationToken cancellationToken);
     }

@@ -1,4 +1,5 @@
-﻿using Clean_Connect.Application.Interface.Repositories;
+﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Value_Objects;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Clean_Connect.Application.Command.WorkerCommands
 {
-    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, string Address, string Contact, Guid ServiceTypeId, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
+    public record UpdateWorkerCommand(Guid WorkerId, string FirstName, string LastName, double Latitude, double Longitude, string Address, string Contact, Guid ServiceTypeId, string Email, string Gender, string State, DateTime DateOfBirth, string? ModifiedBy = null) : IRequest<bool>;
 
 
     public class UpdateWorkerValidator : AbstractValidator<UpdateWorkerCommand>
@@ -48,6 +49,15 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 .Length(10, 100)
                 .WithMessage("Email must be between 10-100 characters");
 
+
+            RuleFor(x => x.Latitude)
+                .InclusiveBetween(4.0, 14.5)
+                .WithMessage("Latitude must be between 4.0 and 14.5 .");
+
+            RuleFor(x => x.Longitude)
+                .InclusiveBetween(2.5, 15.5)
+                .WithMessage("Longitude must be between 2.5 and 15.5 .");
+
             RuleFor(x => x.State)
                 .NotEmpty()
                 .WithMessage("State is required")
@@ -73,7 +83,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
         }
     }
 
-    public class UpdateWorkerHandler(IUnitOfWork repo, ILogger<UpdateWorkerHandler> logger) : IRequestHandler<UpdateWorkerCommand, bool>
+    public class UpdateWorkerHandler(IUnitOfWork repo, GeocodingService geocodingService, ILogger<UpdateWorkerHandler> logger) : IRequestHandler<UpdateWorkerCommand, bool>
     {
         public async Task<bool> Handle(UpdateWorkerCommand request, CancellationToken cancellationToken)
         {
@@ -84,7 +94,7 @@ namespace Clean_Connect.Application.Command.WorkerCommands
             }
 
             var serviceType = await repo.ServiceTypes.GetByIdAsync(request.ServiceTypeId, cancellationToken);
-            if(serviceType == null)
+            if (serviceType == null)
             {
                 logger.LogError("Service Type with ID {ServiceTypeId} not found", request.ServiceTypeId);
                 throw new KeyNotFoundException($"Service Type with ID {request.ServiceTypeId} not found");
@@ -97,13 +107,13 @@ namespace Clean_Connect.Application.Command.WorkerCommands
                 throw new KeyNotFoundException($"Worker with ID {request.WorkerId} not found");
             }
 
-           
+
             var email = request.Email.Trim();
 
-            
+
             var checkExistingEmail = await repo.Workers.GetByEmail(request.Email, cancellationToken);
 
-            if(checkExistingEmail != null &&  checkExistingEmail.Id != request.WorkerId)
+            if (checkExistingEmail != null && checkExistingEmail.Id != request.WorkerId)
             {
                 logger.LogWarning("Attempt to update client {ClientId} with duplicate email {Email}",
                     worker.Id,
@@ -114,11 +124,14 @@ namespace Clean_Connect.Application.Command.WorkerCommands
 
             }
 
+            var newAddress = await geocodingService.GetAddressAsync(request.Latitude, request.Longitude);
+
             worker.UpdateName(request.LastName, request.FirstName, request.ModifiedBy);
+            worker.UpdateLocation(request.Latitude, request.Longitude);
             worker.UpdateContact(request.Contact, request.ModifiedBy);
             worker.UpdateEmail(request.Email, request.ModifiedBy);
             worker.UpdateServiceType(request.ServiceTypeId, request.ModifiedBy);
-            worker.UpdateAddress(request.Address, request.ModifiedBy);
+            worker.UpdateAddress(newAddress, request.ModifiedBy);
             worker.UpdateDateOfBirth(request.DateOfBirth, request.ModifiedBy);
             worker.UpdateState(request.State, request.ModifiedBy);
             worker.UpdateGender(gender, request.ModifiedBy);

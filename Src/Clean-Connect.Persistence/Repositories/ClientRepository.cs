@@ -30,7 +30,12 @@ namespace Clean_Connect.Persistence.Repositories
         }
         public async Task<Client> GetClientById(Guid clientId, CancellationToken cancellationToken)
         {
-            return await dbContext.Clients.FirstOrDefaultAsync(x => x.Id == clientId);
+            return await dbContext.Clients
+                .Include(c => c.Bookings)
+                .ThenInclude(c => c.ServiceType)
+                .Include(c => c.Bookings)
+                .ThenInclude(c => c.Worker)
+                .FirstOrDefaultAsync(x => x.Id == clientId);
         }
 
         public async Task<IEnumerable<Client>> GetAllClients(CancellationToken cancellationToken)

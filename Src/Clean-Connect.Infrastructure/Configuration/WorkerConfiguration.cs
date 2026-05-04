@@ -53,6 +53,31 @@ namespace Clean_Connect.Infrastructure.Configuration
                 .HasMaxLength(100);
             });
 
+            builder.OwnsOne(b => b.Location, loc =>
+            {
+                loc.Property(l => l.Latitude)
+                .IsRequired()
+                .HasColumnType("decimal(9,6)")
+                .HasColumnName("Latitude");
+
+                loc.Property(l => l.Longitude)
+                .IsRequired()
+                .HasColumnType("decimal(9,6)")
+                .HasColumnName("Longitude");
+
+                loc.Property(l => l.Point)
+                .HasColumnType("geography")
+                .HasColumnName("LocationPoint");
+            });
+
+            builder.Property(x => x.AverageRating)
+                .HasPrecision(3, 2)
+                .HasDefaultValue(0);
+
+            builder.Property(x => x.TotalRating)
+                .IsRequired()
+                .HasDefaultValue(0);
+
             builder.Property(x => x.State)
                 .IsRequired()
                 .HasMaxLength(15);
@@ -63,6 +88,7 @@ namespace Clean_Connect.Infrastructure.Configuration
             builder.Property(x => x.Gender)
                 .HasConversion<string>()
                 .IsRequired();
+            
 
             builder.HasOne(x => x.ServiceType)
                 .WithMany(x => x.Workers)

@@ -2,13 +2,6 @@
 using Clean_Connect.Domain.Events;
 using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clean_Connect.Domain.Entities
 {
@@ -16,11 +9,12 @@ namespace Clean_Connect.Domain.Entities
     {
         private Worker() { }
 
-        private Worker(FullName name, Address address, PhoneNumber contact, Gender gender, Guid ServiceType, Email email, string state, DateTime dob, string? createdBy = null)
+        private Worker(FullName name, Address address,Location location, PhoneNumber contact, Gender gender, Guid ServiceType, Email email, string state, DateTime dob, string? createdBy = null)
         {
             FullName = name ?? throw new ArgumentNullException("name");
             Address = address ?? throw new ArgumentNullException("address");
             Contact = contact ?? throw new ArgumentNullException("contact");
+            Location = location ?? throw new ArgumentNullException("location"); 
             Gender = gender ;
             ServiceTypeId = ServiceType;
             Email = email ?? throw new ArgumentNullException("email");
@@ -37,8 +31,17 @@ namespace Clean_Connect.Domain.Entities
 
         public PhoneNumber Contact { get; private set; } = default!;
 
+        public Location Location { get; private set; } = default!;
+        
         public ServiceType ServiceType { get; private set; } = default!;    
 
+        public List<Booking> Bookings { get; private set; } = new List<Booking>();
+
+        public ICollection<Ratings> Ratings { get; private set; } = new List<Ratings>();
+
+        public double AverageRating { get; private set; }
+
+        public int TotalRating { get; private set; }
         public Guid ServiceTypeId { get; private set; } = default!;
 
         public Gender Gender { get; private set; } = default!;
@@ -63,16 +66,29 @@ namespace Clean_Connect.Domain.Entities
             }
         }
 
-        public static Worker Create(FullName name, Address address, PhoneNumber contact, Gender gender, Guid serviceTypeId, Email email, string state, DateTime dob, string? createdBy = null)
+        public static Worker Create(FullName name, Address address, PhoneNumber contact,Location location, Gender gender, Guid serviceTypeId, Email email, string state, DateTime dob, string? createdBy = null)
         {
             ValidateDateOfBirth(dob);
             ValidateState(state);
-            var worker = new Worker(name, address, contact, gender, serviceTypeId, email, state, dob);
+            var worker = new Worker(name, address,location, contact, gender, serviceTypeId, email, state, dob);
 
             //domain event
             worker.AddDomainEvent(new WorkerCreatedDomainEvent(worker.Id));
             worker.UpdateMetadata(createdBy);
             return worker;
+        }
+
+        public void UpdateLocation(double Latitude, double Longitude, string? modifiedBy = null)
+        {
+            Location = Location.Create(Latitude, Longitude);
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void UpdateRating(int newTotalRating, double newAverageRating, string? modifiedBy = null)
+        {
+            TotalRating = newTotalRating;
+            AverageRating = newAverageRating;
+            UpdateMetadata(modifiedBy);
         }
 
         public void UpdateState(string state, string? modifiedBy = null)

@@ -44,6 +44,7 @@ namespace Clean_Connect.Application.Query.WorkersQuery
                 Age = worker.Age,
                 ServiceType = worker.ServiceType.Name,
                 State = worker.State,
+                Rating = worker.AverageRating,
                 Contact = worker.Contact,
                 Gender = worker.Gender.ToString(),
                 DateOfBirth = worker.DateOfBirth,

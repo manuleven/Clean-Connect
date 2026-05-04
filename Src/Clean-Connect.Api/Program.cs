@@ -1,5 +1,6 @@
 using Clean_Connect.Application.AssemblyMarker;
 using Clean_Connect.Application.Behaviours;
+using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Infrastructure.Context;
@@ -8,6 +9,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Reflection;
@@ -36,7 +38,8 @@ var jwtSettings = builder.Configuration.GetSection("Jwt");
 // --------------------
 builder.Services.AddSqlServer<ApplicationDbContext>(
     builder.Configuration.GetConnectionString("DefaultConnection"),
-    b => b.MigrationsAssembly("Clean-Connect.Persistence"));
+    b => b.UseNetTopologySuite()
+   .MigrationsAssembly("Clean-Connect.Persistence"));
 
 // --------------------
 // Identity Core for API
@@ -96,11 +99,24 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
 
 // --------------------
+// DI for Services
+// --------------------
+builder.Services.AddHttpClient<GeocodingService>();
+builder.Services.AddScoped<WorkerAvailabilityService>();
+builder.Services.AddScoped<BookingRuleService>();
+builder.Services.AddScoped<AcceptBookingService>();
+builder.Services.AddScoped<MarkAsCompletedService>();
+
+
+
+// --------------------
 // DI for repositories & UnitOfWork
 // --------------------
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IWorkerRepository, WorkerRepository>();
 builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // --------------------

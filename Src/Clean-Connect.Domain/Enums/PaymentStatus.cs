@@ -8,5 +8,8 @@ namespace Clean_Connect.Domain.Enums
 {
     public enum PaymentStatus
     {
+        AwaitingWorkerAcceptance,
+        AwaitingPayment,
+        Canceled,
     }
 }
