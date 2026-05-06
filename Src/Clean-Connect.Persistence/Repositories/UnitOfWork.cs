@@ -3,7 +3,7 @@ using Clean_Connect.Infrastructure.Context;
 
 namespace Clean_Connect.Persistence.Repositories
 {
-    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository) : IUnitOfWork
+    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository) : IUnitOfWork
     {
         public IWorkerRepository Workers { get;  } = workerRepository;
 
@@ -11,6 +11,8 @@ namespace Clean_Connect.Persistence.Repositories
         public IClientRepository Clients { get; } = clientRepository;
 
         public IRatingRepository Ratings { get; } = ratingRepository;
+
+        public IPaymentRepository Payments { get; } = paymentRepository;
 
         public IBookingRepository Bookings { get; } = bookingRepository;
 

@@ -49,11 +49,11 @@ namespace Clean_Connect.Application.Command.WorkerCommands
            
 
             booking.Accept();
-            _logger.LogInformation("Worker {WorkerId} accepted booking {BookingId}", request.WorkerId, request.BookingId);
+            _logger.LogInformation("Worker {WorkerId} accepted  booking now awaiting payment{BookingId}", request.WorkerId, request.BookingId);
 
             await _repo.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Booking {BookingId} accepted by worker {WorkerId}", request.BookingId, request.WorkerId);
+            _logger.LogInformation("Booking {BookingId} accepted by worker now awaiting payment {WorkerId}", request.BookingId, request.WorkerId);
 
 
             return true;

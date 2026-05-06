@@ -9,7 +9,7 @@ namespace Clean_Connect.Domain.Enums
     public enum BookingStatus
     {
         Pending,
-        Accepted,
+        AcceptedAwaitingPayment,
         InProgress,
         Rejected,
         Cancelled,

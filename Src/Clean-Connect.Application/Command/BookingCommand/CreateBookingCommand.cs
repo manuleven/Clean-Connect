@@ -68,7 +68,7 @@ namespace Clean_Connect.Application.Command.BookingCommand
             }
 
 
-            var paymentStatus = PaymentStatus.AwaitingWorkerAcceptance;
+            var paymentStatus = PaymentStatus.Pending;
 
             var bookingStatus = BookingStatus.Pending;
 

@@ -12,6 +12,8 @@ namespace Clean_Connect.Application.Interface.Repositories
         IServiceTypeRepository ServiceTypes { get; }
         IClientRepository Clients { get; }
         IBookingRepository Bookings { get; }
+
+        IPaymentRepository Payments { get; }
         IRatingRepository Ratings { get; }
         Task BeginTransactionAsync(CancellationToken cancellation);
 

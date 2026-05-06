@@ -73,8 +73,8 @@ namespace Clean_Connect.Domain.Entities
             {
                 throw new InvalidOperationException("Only pending bookings can be accepted.");
             }
-            BookingStatus = BookingStatus.Accepted;
-            PaymentStatus = PaymentStatus.AwaitingPayment;
+            BookingStatus = BookingStatus.AcceptedAwaitingPayment;
+            PaymentStatus = PaymentStatus.Pending;
 
             _domainEvents.Add(new BookingAcceptedEvent(Id));
         }
@@ -93,7 +93,7 @@ namespace Clean_Connect.Domain.Entities
 
         public void StartJob()
         {
-            if (BookingStatus != BookingStatus.Accepted)
+            if (BookingStatus != BookingStatus.AcceptedAwaitingPayment)
             {
                 throw new InvalidOperationException("Only accepted bookings can be started.");
             }
@@ -104,9 +104,9 @@ namespace Clean_Connect.Domain.Entities
 
         public void MarkAsCompleted()
         {
-            if (BookingStatus != BookingStatus.Accepted)
+            if (BookingStatus != BookingStatus.InProgress)
             {
-                throw new InvalidOperationException("Only accepted bookings can be marked as completed.");
+                throw new InvalidOperationException("Only in-progress bookings can be marked as completed.");
             }
             BookingStatus = BookingStatus.Completed;
         }
