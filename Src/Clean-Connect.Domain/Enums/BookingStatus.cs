@@ -10,6 +10,7 @@ namespace Clean_Connect.Domain.Enums
     {
         Pending,
         AcceptedAwaitingPayment,
+        MarkAsPaid,
         InProgress,
         Rejected,
         Cancelled,

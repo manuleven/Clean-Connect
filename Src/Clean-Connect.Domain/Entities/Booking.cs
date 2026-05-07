@@ -101,6 +101,15 @@ namespace Clean_Connect.Domain.Entities
             BookingStatus = BookingStatus.InProgress;
         }
 
+        public void MarkAsPaid()
+        {
+            if (BookingStatus != BookingStatus.AcceptedAwaitingPayment)
+            {
+                throw new InvalidOperationException("Only accepted bookings can be marked as paid.");
+            }
+            BookingStatus = BookingStatus.MarkAsPaid;
+            PaymentStatus = PaymentStatus.Successful;
+        }   
 
         public void MarkAsCompleted()
         {

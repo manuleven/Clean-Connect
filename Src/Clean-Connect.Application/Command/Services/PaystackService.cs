@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -50,6 +51,28 @@ namespace Clean_Connect.Application.Command.Services
             {
                 throw new Exception($"Paystack initialization failed: {content.message}");
             }
+        }
+
+        public async Task<PaystackVerifyResponse> VerifyTransaction(string reference)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _paystackSecretKey);
+
+            var response = await _httpClient.GetAsync(
+                $"https://api.paystack.co/transaction/verify/{reference}"
+            );
+
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content
+                .ReadFromJsonAsync<PaystackVerifyResponse>();
+
+            if (content == null)
+            {
+                throw new Exception("Unable to verify transaction");
+            }
+
+            return content;
         }
     }
 }

@@ -10,5 +10,7 @@ namespace Clean_Connect.Application.Interface.Services
     public interface IPaystackService
     {
         Task <PaystackInitResponse> InitializePayment(decimal amount, string email, string reference);
+
+        Task<PaystackVerifyResponse> VerifyTransaction(string reference);
     }
 }
