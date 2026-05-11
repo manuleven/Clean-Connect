@@ -1,9 +1,7 @@
 ﻿using Clean_Connect.Application.Command.ClientCommands;
 using Clean_Connect.Application.Command.WorkerCommands;
 using Clean_Connect.Application.Query.ClientQuery;
-using Clean_Connect.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Clean_Connect.Api.Controllers
@@ -76,8 +74,7 @@ namespace Clean_Connect.Api.Controllers
         {
             command = command with { BookingId = bookingId };
 
-            logger.LogInformation("Worker {WorkerId} Completed booking {BookingId}",
-                command.ClientId, bookingId);
+            logger.LogInformation("Worker {WorkerId} Completed booking {BookingId}",command.ClientId, bookingId);
 
             var result = await mediator.Send(command, cancellationToken);
 

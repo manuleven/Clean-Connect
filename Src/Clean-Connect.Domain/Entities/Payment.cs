@@ -13,13 +13,13 @@ namespace Clean_Connect.Domain.Entities
     public class Payment : BaseEntity
     {
         private Payment() { }
-        private Payment(Guid bookingId, decimal amount, PaymentStatus paymentstatus , string paymentMethod, string? createdBy = null)
+        private Payment(Guid bookingId, decimal amount, PaymentStatus paymentstatus, string paymentMethod, string? createdBy = null)
         {
             BookingId = bookingId;
             Amount = amount;
-            Status = paymentstatus ;
+            Status = paymentstatus;
             PaymentMethod = paymentMethod ?? throw new ArgumentNullException(nameof(PaymentMethod));
-          
+
             UpdateMetadata(createdBy);
         }
         public Guid BookingId { get; private set; }
@@ -31,31 +31,31 @@ namespace Clean_Connect.Domain.Entities
         public string PaymentReference { get; private set; }
 
         public string Provider { get; private set; } = "paystack";
-        public string AuthorizationCode { get; private set; } = default!;
+        public string? AuthorizationCode { get; private set; } = default!;
         public string? TransactionId { get; private set; } = default!;
 
         public static Payment Create(Guid bookingId, decimal amount, string paymentReference, string paymentMethod, string transactionId, string? createdBy = null)
         {
-           
+
             ValidateBookingId(bookingId);
             ValidatePaymentReference(paymentReference);
             ValidateAmount(amount);
-            
 
-            
 
-            var payment = new Payment(bookingId, amount,PaymentStatus.Pending, paymentMethod, createdBy);
+
+
+            var payment = new Payment(bookingId, amount, PaymentStatus.Pending, paymentMethod, createdBy);
 
             payment.PaymentReference = paymentReference;
-            
+
             payment.TransactionId = transactionId ?? string.Empty;
             payment.AddDomainEvent(new PaymentCreatedEvent(payment.Id));
             return payment;
         }
-        
+
         public void MarkAsPaid(string authorizationCode, string transactionId, string? modifiedBy = null)
         {
-           ValidatePaymentStatusTransition(PaymentStatus.Successful);
+            ValidatePaymentStatusTransition(PaymentStatus.Successful);
             Status = PaymentStatus.Successful;
             TransactionId = transactionId;
             AuthorizationCode = authorizationCode;
@@ -125,5 +125,5 @@ namespace Clean_Connect.Domain.Entities
     }
 
 
-    }
+}
 

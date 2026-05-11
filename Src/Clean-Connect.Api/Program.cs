@@ -4,7 +4,6 @@ using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
-using Clean_Connect.Domain.Helper;
 using Clean_Connect.Infrastructure.Context;
 using Clean_Connect.Persistence.Repositories;
 using FluentValidation;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -108,7 +106,8 @@ builder.Services.AddScoped<WorkerAvailabilityService>();
 builder.Services.AddScoped<BookingRuleService>();
 builder.Services.AddScoped<AcceptBookingService>();
 builder.Services.AddScoped<MarkAsCompletedService>();
-builder.Services.AddScoped<PaystackService>();
+builder.Services.AddScoped<EscrowService>();
+builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 
 
 
@@ -123,6 +122,8 @@ builder.Services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+builder.Services.AddScoped<IEscrowRepository, EscrowRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // --------------------

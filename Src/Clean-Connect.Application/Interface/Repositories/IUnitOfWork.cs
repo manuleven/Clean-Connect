@@ -15,6 +15,8 @@ namespace Clean_Connect.Application.Interface.Repositories
 
         IPaymentRepository Payments { get; }
         IRatingRepository Ratings { get; }
+        IWalletRepository Wallets { get; }
+        IEscrowRepository Escrows { get; }
         Task BeginTransactionAsync(CancellationToken cancellation);
 
         Task CommitTransactionAsync(CancellationToken cancellation);

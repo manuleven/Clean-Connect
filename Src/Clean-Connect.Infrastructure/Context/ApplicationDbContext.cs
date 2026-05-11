@@ -21,6 +21,8 @@ namespace Clean_Connect.Infrastructure.Context
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
+        public DbSet<Escrow> Escrows { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

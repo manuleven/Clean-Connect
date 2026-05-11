@@ -23,13 +23,17 @@ namespace Clean_Connect.Application.DTO
         public int Amount { get; set; }
 
         public string Reference { get; set; }
-        public string Id { get; set; }
+
+        public long? Id { get; set; }
+
+        [JsonPropertyName("gateway_response")]
         public string GatewayResponse { get; set; }
         public Authorization Authorization { get; set; }
     }
 
     public record Authorization
     {
+        [JsonPropertyName("authorization_code")]
         public string AuthorizationCode { get; set; }
         
     }

@@ -150,6 +150,7 @@ namespace Clean_Connect.Domain.Entities
             UpdateMetadata(modifiedBy);
         }
 
+        
         private static void ValidateState(string state)
         {
             if (string.IsNullOrWhiteSpace(state))

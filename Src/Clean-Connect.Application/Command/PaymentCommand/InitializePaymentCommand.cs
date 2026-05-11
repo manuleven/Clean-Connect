@@ -2,6 +2,7 @@
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -75,13 +76,38 @@ namespace Clean_Connect.Application.Command.PaymentCommand
                 throw new ArgumentNullException(nameof(booking));
             }
 
+            if (booking.BookingStatus != BookingStatus.AcceptedAwaitingPayment)
+            {
+                logger.LogWarning(
+                    "Payment initialization failed. Booking {BookingId} status is {BookingStatus}",
+                    request.BookingId,
+                    booking.BookingStatus);
+                throw new InvalidOperationException("Booking must be accepted by the worker before payment can be initialized.");
+            }
+
+            if (booking.PaymentStatus == PaymentStatus.Successful)
+            {
+                logger.LogInformation("Payment initialization skipped. Booking {BookingId} is already paid.", request.BookingId);
+                throw new InvalidOperationException("Booking has already been paid.");
+            }
+
+            if (request.Amount != booking.Amount)
+            {
+                logger.LogWarning(
+                    "Payment initialization failed. Request amount {RequestAmount} does not match booking amount {BookingAmount} for booking {BookingId}",
+                    request.Amount,
+                    booking.Amount,
+                    request.BookingId);
+                throw new InvalidOperationException("Payment amount must match the booking amount.");
+            }
+
             // 1. Generate unique reference
             var reference = Guid.NewGuid().ToString();
             logger.LogInformation("Generated payment reference: {Reference} for Booking ID: {BookingId}", reference, request.BookingId);
 
             // 2. Create payment (Pending)
 
-            var payment = Payment.Create(request.BookingId, booking.Amount, reference, request.PaymentMethod, request.CreatedBy);
+            var payment = Payment.Create(request.BookingId, booking.Amount, reference, request.PaymentMethod, request.TransactionId ?? string.Empty, request.CreatedBy);
             logger.LogInformation("Created payment record for Booking ID: {BookingId} with Reference: {Reference}", request.BookingId, reference);
 
             await repo.Payments.CreatePayment(payment, cancellationToken);
@@ -94,9 +120,9 @@ namespace Clean_Connect.Application.Command.PaymentCommand
 
                 throw new ArgumentException("Payment initialization failed");
 
-            return response.AuthorizationUrl;
             logger.LogInformation("Payment initialization successful for Booking ID: {BookingId} with Reference: {Reference}. Authorization URL: {AuthorizationUrl}", request.BookingId, reference, response.AuthorizationUrl);
 
+            return response.AuthorizationUrl;
 
         }
     }

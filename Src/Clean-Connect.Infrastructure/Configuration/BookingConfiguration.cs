@@ -40,7 +40,7 @@ namespace Clean_Connect.Infrastructure.Configuration
                 .HasColumnName("LocationPoint");
 
                 loc.HasIndex(l => l.Point)
-                .HasDatabaseName("IX_Workers_LocationPoint");
+                .HasDatabaseName("IX_Bookings_LocationPoint");
                 
 
             });

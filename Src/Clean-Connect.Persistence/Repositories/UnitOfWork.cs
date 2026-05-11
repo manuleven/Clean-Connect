@@ -3,7 +3,7 @@ using Clean_Connect.Infrastructure.Context;
 
 namespace Clean_Connect.Persistence.Repositories
 {
-    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository) : IUnitOfWork
+    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository, IWalletRepository walletRepository, IEscrowRepository escrowRepository) : IUnitOfWork
     {
         public IWorkerRepository Workers { get;  } = workerRepository;
 
@@ -15,6 +15,10 @@ namespace Clean_Connect.Persistence.Repositories
         public IPaymentRepository Payments { get; } = paymentRepository;
 
         public IBookingRepository Bookings { get; } = bookingRepository;
+
+        public IWalletRepository Wallets { get; } = walletRepository;
+
+        public IEscrowRepository Escrows { get; } = escrowRepository;
 
         public async Task BeginTransactionAsync(CancellationToken cancellation)
         {

@@ -36,12 +36,14 @@ namespace Clean_Connect.Application.Command.ClientCommands
     {
         private readonly IUnitOfWork repo;
         private readonly MarkAsCompletedService service;
-        private readonly ILogger<AcceptBookingHandler> logger;
+        private readonly EscrowService escrowService;
+        private readonly ILogger<MarkAsCompletedHandler> logger;
 
-        public MarkAsCompletedHandler(IUnitOfWork _repo, MarkAsCompletedService _service, ILogger<AcceptBookingHandler> _logger)
+        public MarkAsCompletedHandler(IUnitOfWork _repo, MarkAsCompletedService _service, EscrowService escrowService, ILogger<MarkAsCompletedHandler> _logger)
         {
             repo = _repo;
             service = _service;
+            this.escrowService = escrowService;
             logger = _logger;
         }
 
@@ -53,6 +55,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
             await service.MarkAsCompletedServiceAsync(request.BookingId, request.ClientId, cancellationToken);
 
             booking.MarkAsCompleted();
+            await escrowService.ReleaseEscrowToWorkerWalletAsync(booking, request.ClientId.ToString(), cancellationToken);
 
             logger.LogInformation("Worker {WorkerId} Completed booking {BookingId}", booking.WorkerId, request.BookingId);
 

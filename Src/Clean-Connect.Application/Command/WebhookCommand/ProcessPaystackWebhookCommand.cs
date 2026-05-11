@@ -1,4 +1,5 @@
-﻿using Clean_Connect.Application.DTO;
+﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
@@ -19,13 +20,15 @@ namespace Clean_Connect.Application.Command.WebhookCommand
 
         private readonly ILogger<ProcessPaystackWebhookCommandHandler> logger;
         private readonly IPaystackService paystackService;
+        private readonly EscrowService escrowService;
 
         private readonly IUnitOfWork unitOfWork;
         private readonly IConfiguration configuration;
-        public ProcessPaystackWebhookCommandHandler(ILogger<ProcessPaystackWebhookCommandHandler> _logger, IPaystackService _paystackService, IUnitOfWork _unitOfWork, IConfiguration _configuration)
+        public ProcessPaystackWebhookCommandHandler(ILogger<ProcessPaystackWebhookCommandHandler> _logger, IPaystackService _paystackService, EscrowService escrowService, IUnitOfWork _unitOfWork, IConfiguration _configuration)
         {
             logger = _logger;
             paystackService = _paystackService;
+            this.escrowService = escrowService;
 
             unitOfWork = _unitOfWork;
             configuration = _configuration;
@@ -74,7 +77,7 @@ namespace Clean_Connect.Application.Command.WebhookCommand
             }
 
             // 4. Validate amount
-            var amountPaid = verification.Data.Amount / 100;
+            var amountPaid = verification.Data.Amount / 100m;
             logger.LogInformation("Amount paid: {AmountPaid}, Expected amount: {ExpectedAmount}", amountPaid, payment.Amount);
 
             if (amountPaid != payment.Amount) 
@@ -99,14 +102,18 @@ namespace Clean_Connect.Application.Command.WebhookCommand
                 throw new Exception("Booking amount mismatch");
             }
 
-            payment.MarkAsPaid(verification.Data.Authorization.AuthorizationCode,verification.Data.Id.ToString());
+            var transactionId = verification.Data.Id?.ToString() ?? reference;
+            payment.MarkAsPaid(verification.Data.Authorization.AuthorizationCode, transactionId);
             logger.LogInformation("Payment with reference {Reference} marked as paid", reference);
 
             booking.MarkAsPaid();
             logger.LogInformation("Booking with reference {Reference} marked as paid", reference);
 
+            await escrowService.HoldPaymentInEscrowAsync(booking, payment, cancellationToken);
+
             await unitOfWork.Payments.UpdatePayment(payment, cancellationToken);
             await unitOfWork.Bookings.UpdateBooking(booking, cancellationToken);
+            await unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }

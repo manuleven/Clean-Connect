@@ -3,11 +3,6 @@ using Clean_Connect.Domain.Events;
 using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clean_Connect.Domain.Entities
 {
@@ -93,9 +88,9 @@ namespace Clean_Connect.Domain.Entities
 
         public void StartJob()
         {
-            if (BookingStatus != BookingStatus.AcceptedAwaitingPayment)
+            if (BookingStatus != BookingStatus.MarkAsPaid)
             {
-                throw new InvalidOperationException("Only accepted bookings can be started.");
+                throw new InvalidOperationException("Only paid bookings can be started.");
             }
 
             BookingStatus = BookingStatus.InProgress;
@@ -111,11 +106,21 @@ namespace Clean_Connect.Domain.Entities
             PaymentStatus = PaymentStatus.Successful;
         }   
 
-        public void MarkAsCompleted()
+        public void MarkAsAwaitingClientConfirmation()
         {
             if (BookingStatus != BookingStatus.InProgress)
             {
-                throw new InvalidOperationException("Only in-progress bookings can be marked as completed.");
+                throw new InvalidOperationException("Only in-progress bookings can be marked as awaiting client confirmation.");
+            }
+            BookingStatus = BookingStatus.AwaitingClientConfirmation;
+          
+        }
+
+        public void MarkAsCompleted()
+        {
+            if (BookingStatus != BookingStatus.InProgress && BookingStatus != BookingStatus.MarkAsPaid)
+            {
+                throw new InvalidOperationException("Only paid or in-progress bookings can be marked as completed.");
             }
             BookingStatus = BookingStatus.Completed;
         }

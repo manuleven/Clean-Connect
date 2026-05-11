@@ -33,10 +33,15 @@ namespace Clean_Connect.Application.Command.Services
                 logger.LogWarning("Booking operation failed. Client {ClientId} is not assigned to booking {BookingId}", clientId, bookingId);
                 throw new UnauthorizedAccessException($"Worker with ID {clientId} is not assigned to booking {bookingId}.");
             }
-            if (booking.BookingStatus != BookingStatus.InProgress)
+            if (booking.BookingStatus != BookingStatus.InProgress && booking.BookingStatus != BookingStatus.MarkAsPaid)
             {
                 logger.LogWarning("Booking operation failed. Booking {BookingId} is not in Progress ", bookingId);
-                throw new InvalidOperationException($"Booking with ID {bookingId} is not in progress status and cannot be mark as completed.");
+                throw new InvalidOperationException($"Booking with ID {bookingId} must be paid or in progress before it can be marked as completed.");
+            }
+            if (booking.PaymentStatus != PaymentStatus.Successful)
+            {
+                logger.LogWarning("Booking operation failed. Booking {BookingId} has not been paid", bookingId);
+                throw new InvalidOperationException($"Booking with ID {bookingId} must be paid before it can be marked as completed.");
             }
         }
     }
