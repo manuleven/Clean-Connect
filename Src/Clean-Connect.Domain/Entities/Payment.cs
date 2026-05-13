@@ -42,7 +42,7 @@ namespace Clean_Connect.Domain.Entities
             ValidatePaymentReference(paymentReference);
             ValidateAmount(amount);
 
-            createdAt = DateTime.UtcNow;
+            
 
             var payment = new Payment(bookingId, amount, PaymentStatus.Pending, paymentMethod, createdAt, createdBy);
 

@@ -2,13 +2,16 @@ using Clean_Connect.Application.Command.PaymentCommand;
 using Clean_Connect.Application.Command.WebhookCommand;
 using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Query.PaymentQuery;
+using Clean_Connect.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Clean_Connect.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PaymentController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -21,7 +24,6 @@ namespace Clean_Connect.Api.Controllers
         }
 
         [HttpGet("payments/{paymentId:guid}/get-payment-by-id")]
-
         public async Task<IActionResult> GetPaymentById(Guid paymentId, CancellationToken cancellationToken)
         {
             logger.LogInformation("Fetching payment for PaymentID: {PaymentID}", paymentId);
@@ -34,13 +36,48 @@ namespace Clean_Connect.Api.Controllers
         }
 
         [HttpGet("Get-all-Payments")]
-
         public async Task<IActionResult> GetAllPayments(GetAllPaymentsQuery command, CancellationToken cancellationToken)
         {
             logger.LogInformation("Get all payments operation started");
             var result = await mediator.Send(command, cancellationToken);
 
-           return StatusCode(200, result);
+            return StatusCode(200, result);
+        }
+
+        [HttpGet("Get-Payment-By-Reference")]
+        public async Task<IActionResult> GetPaymentByReference(string reference, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Fetching payment for Reference: {Reference}", reference);
+            var payment = new GetPaymentByReferenceQuery(reference);
+            var result = await mediator.Send(payment, cancellationToken).ConfigureAwait(false);
+            return Ok(result);
+        }
+
+        [HttpGet("Get-Payments-By-Payment-Status")]
+        public async Task<IActionResult> GetPaymentsByPaymentStatus(PaymentStatus paymentStatus, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Fetching payments for PaymentStatus: {PaymentStatus}", paymentStatus);
+            var payment = new GetByPaymentStatusQuery(paymentStatus);
+            var result = await mediator.Send(payment, cancellationToken).ConfigureAwait(false);
+            return Ok(result);
+        }
+
+        [HttpGet("Get-Payments-By-BookingId")]
+        public async Task<IActionResult> GetPaymentsByBookingId(Guid bookingId, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Fetching payments for BookingId: {BookingId}", bookingId);
+            var query = new GetPaymentByBookingIdQuery(bookingId);
+            var result = await mediator.Send(query, cancellationToken).ConfigureAwait(false);
+            return Ok(result);
+        }
+
+        [HttpGet("check-reference-exists")]
+        public async Task<IActionResult> CheckPaymentReferenceExists(string reference, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Checking if payment reference exists: {Reference}", reference);
+            var query = new CheckPaymentReferenceExistsQuery(reference);
+            var result = await mediator.Send(query, cancellationToken).ConfigureAwait(false);
+            return Ok(new { exists = result, reference });
         }
 
         [HttpPost("initialize")]
@@ -60,7 +97,7 @@ namespace Clean_Connect.Api.Controllers
         [HttpPost("bookings/{bookingId:guid}/pay")]
         public async Task<IActionResult> PayForAcceptedBooking(Guid bookingId, [FromBody] ClientPaymentRequest request, CancellationToken cancellationToken)
         {
-            logger.LogInformation("");
+            logger.LogInformation("Payment initialization for accepted booking {BookingId} by client {ClientId}", bookingId, request.ClientId);
             var command = new PayForAcceptedBookingCommand(
                 bookingId,
                 request.ClientId,
@@ -78,8 +115,20 @@ namespace Clean_Connect.Api.Controllers
             return Ok(result);
         }
 
+        [HttpDelete("payments/{paymentId:guid}")]
+        public async Task<IActionResult> DeletePayment(Guid paymentId, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Deleting payment with ID: {PaymentId}", paymentId);
+            var command = new DeletePaymentCommand(paymentId);
+
+            var result = await mediator.Send(command, cancellationToken).ConfigureAwait(false);
+
+            logger.LogInformation("Payment with ID {PaymentId} deleted successfully", paymentId);
+            return Ok(new { success = result, message = "Payment deleted successfully" });
+        }
 
         [HttpPost("paystack/webhook")]
+        [AllowAnonymous]
         public async Task<IActionResult> PaystackWebhook(CancellationToken cancellationToken)
         {
             using var reader = new StreamReader(Request.Body);

@@ -100,7 +100,7 @@ namespace Clean_Connect.Application.Command.PaymentCommand
                 reference,
                 request.PaymentMethod,
                 string.Empty,
-                request.CreatedBy);
+                DateTime.UtcNow);
 
             await repo.Payments.CreatePayment(payment, cancellationToken);
 
