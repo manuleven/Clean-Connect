@@ -13,12 +13,13 @@ namespace Clean_Connect.Domain.Entities
     public class Payment : BaseEntity
     {
         private Payment() { }
-        private Payment(Guid bookingId, decimal amount, PaymentStatus paymentstatus, string paymentMethod, string? createdBy = null)
+        private Payment(Guid bookingId, decimal amount, PaymentStatus paymentstatus, string paymentMethod, DateTime createdAt, string? createdBy = null)
         {
             BookingId = bookingId;
             Amount = amount;
             Status = paymentstatus;
             PaymentMethod = paymentMethod ?? throw new ArgumentNullException(nameof(PaymentMethod));
+            DateCreated = createdAt;
 
             UpdateMetadata(createdBy);
         }
@@ -34,17 +35,16 @@ namespace Clean_Connect.Domain.Entities
         public string? AuthorizationCode { get; private set; } = default!;
         public string? TransactionId { get; private set; } = default!;
 
-        public static Payment Create(Guid bookingId, decimal amount, string paymentReference, string paymentMethod, string transactionId, string? createdBy = null)
+        public static Payment Create(Guid bookingId, decimal amount, string paymentReference, string paymentMethod, string transactionId, DateTime createdAt, string? createdBy = null)
         {
 
             ValidateBookingId(bookingId);
             ValidatePaymentReference(paymentReference);
             ValidateAmount(amount);
 
+            createdAt = DateTime.UtcNow;
 
-
-
-            var payment = new Payment(bookingId, amount, PaymentStatus.Pending, paymentMethod, createdBy);
+            var payment = new Payment(bookingId, amount, PaymentStatus.Pending, paymentMethod, createdAt, createdBy);
 
             payment.PaymentReference = paymentReference;
 

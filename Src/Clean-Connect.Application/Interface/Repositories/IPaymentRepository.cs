@@ -8,7 +8,7 @@ namespace Clean_Connect.Application.Interface.Repositories
         Task CreatePayment(Payment payment, CancellationToken cancellationToken);
         Task DeletePayment(Guid paymentId, CancellationToken cancellationToken);
         Task<bool> ExistsByReferenceAsync(string reference, CancellationToken cancellationToken);
-        Task<List<Payment>> GetAllPayment(CancellationToken cancellationToken);
+        Task<List<Payment>> GetAllPayments(CancellationToken cancellationToken);
         Task<Payment?> GetByReferenceAsync(string paymentReference, CancellationToken cancellationToken);
         Task<List<Payment>> GetByStatusAsync(PaymentStatus status, CancellationToken cancellationToken);
         Task<Payment> GetPaymentById(Guid paymentId, CancellationToken cancellationToken);

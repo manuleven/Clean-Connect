@@ -1,6 +1,7 @@
 using Clean_Connect.Application.Command.PaymentCommand;
 using Clean_Connect.Application.Command.WebhookCommand;
 using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.Query.PaymentQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,29 @@ namespace Clean_Connect.Api.Controllers
         {
             this.mediator = mediator;
             this.logger = logger;
+        }
+
+        [HttpGet("payments/{paymentId:guid}/get-payment-by-id")]
+
+        public async Task<IActionResult> GetPaymentById(Guid paymentId, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Fetching payment for PaymentID: {PaymentID}", paymentId);
+
+            var payment = new GetPaymentByIdCQuery(paymentId);
+
+            var result = await mediator.Send(payment, cancellationToken).ConfigureAwait(false);
+
+            return Ok(result);
+        }
+
+        [HttpGet("Get-all-Payments")]
+
+        public async Task<IActionResult> GetAllPayments(GetAllPaymentsQuery command, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Get all payments operation started");
+            var result = await mediator.Send(command, cancellationToken);
+
+           return StatusCode(200, result);
         }
 
         [HttpPost("initialize")]
@@ -36,6 +60,7 @@ namespace Clean_Connect.Api.Controllers
         [HttpPost("bookings/{bookingId:guid}/pay")]
         public async Task<IActionResult> PayForAcceptedBooking(Guid bookingId, [FromBody] ClientPaymentRequest request, CancellationToken cancellationToken)
         {
+            logger.LogInformation("");
             var command = new PayForAcceptedBookingCommand(
                 bookingId,
                 request.ClientId,
@@ -52,6 +77,7 @@ namespace Clean_Connect.Api.Controllers
 
             return Ok(result);
         }
+
 
         [HttpPost("paystack/webhook")]
         public async Task<IActionResult> PaystackWebhook(CancellationToken cancellationToken)

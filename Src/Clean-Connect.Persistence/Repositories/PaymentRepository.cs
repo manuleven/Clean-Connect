@@ -47,7 +47,7 @@ namespace Clean_Connect.Persistence.Repositories
             return await dbContext.Payments.AnyAsync(p => p.PaymentReference == reference, cancellationToken);
         }
 
-        public async Task<List<Payment>> GetAllPayment(CancellationToken cancellationToken)
+        public async Task<List<Payment>> GetAllPayments(CancellationToken cancellationToken)
         {
             return await dbContext.Payments.ToListAsync(cancellationToken);
         }

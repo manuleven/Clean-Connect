@@ -24,7 +24,7 @@ namespace Clean_Connect.Api.Controllers
             logger.LogInformation("Booking creation started");
             var result = await mediator.Send(booking, cancellationToken);
             logger.LogInformation("Booking creation completed");
-            return StatusCode(201);
+            return StatusCode(201, result);
         }
 
         [HttpPost("{bookingId}/mark-as-completed-by-Worker")]
