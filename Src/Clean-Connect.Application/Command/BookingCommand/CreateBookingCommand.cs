@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Query.WorkersQuery;
 using Clean_Connect.Domain.Entities;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Clean_Connect.Application.Command.BookingCommand
 {
-    public record CreateBookingCommand(Guid ClientId, Guid WorkerId, double Latitude, double Longitude, double RadiusInMeters, Guid ServiceTypeId, DateTime DateOfService, string TimeRange, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateBookingCommand(Guid ClientId, Guid WorkerId, double Latitude, double Longitude, double RadiusInMeters, Guid ServiceTypeId, DateTime DateOfService, string TimeRange, string? CouponCode = null, string? CreatedBy = null) : IRequest<bool>;
 
     public class CreateBookingValidator : AbstractValidator<CreateBookingCommand>
     {
@@ -75,6 +75,22 @@ namespace Clean_Connect.Application.Command.BookingCommand
             var location = Location.Create(request.Latitude, request.Longitude);
 
             var amount = checkServiceType.Amount;
+            var originalAmount = amount;
+            Guid? couponId = null;
+
+            if (!string.IsNullOrWhiteSpace(request.CouponCode))
+            {
+                var coupon = await repo.Coupons.GetByCodeAsync(request.CouponCode, cancellationToken);
+                if (coupon == null)
+                    throw new ValidationException($"Coupon code {request.CouponCode} does not exist.");
+
+                if (!coupon.IsValid())
+                    throw new ValidationException($"Coupon code {request.CouponCode} is expired or its usage limit has been reached.");
+
+                amount = coupon.ApplyDiscount(originalAmount);
+                coupon.IncrementUsage(request.CreatedBy);
+                couponId = coupon.Id;
+            }
 
             var discoverAddress = await geocodingService.GetAddressAsync(request.Latitude, request.Longitude);
 
@@ -104,11 +120,13 @@ namespace Clean_Connect.Application.Command.BookingCommand
                 request.DateOfService,
                 DateTime.UtcNow,
                 amount,
+                originalAmount,
                 timeRange,
                 address,
                 bookingStatus,
                 paymentStatus,
                 request.ServiceTypeId,
+                couponId,
                 request.CreatedBy
                 );
 

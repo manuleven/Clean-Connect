@@ -126,6 +126,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 builder.Services.AddScoped<IEscrowRepository, EscrowRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // --------------------

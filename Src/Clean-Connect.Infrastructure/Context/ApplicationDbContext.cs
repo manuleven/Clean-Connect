@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Events;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -23,6 +23,7 @@ namespace Clean_Connect.Infrastructure.Context
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Wallet> Wallets { get; set; }
         public DbSet<Escrow> Escrows { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

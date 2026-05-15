@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Domain.Enums;
+using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Events;
 using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
@@ -10,12 +10,14 @@ namespace Clean_Connect.Domain.Entities
     {
         private Booking() { }
 
-        private Booking(Guid clientId, Guid workerId, DateTime dateOfBooking,Location location, DateTime dateOfService, decimal amount, TimeRange timeRange, PaymentStatus paymentStatus, Address address, Guid serviceTypeId, BookingStatus bookingStatus, string? createdBy = null)
+        private Booking(Guid clientId, Guid workerId, DateTime dateOfBooking,Location location, DateTime dateOfService, decimal amount, decimal originalAmount, TimeRange timeRange, PaymentStatus paymentStatus, Address address, Guid serviceTypeId, BookingStatus bookingStatus, Guid? couponId = null, string? createdBy = null)
         {
             ClientId = clientId;
             WorkerId = workerId;
             ServiceTypeId = serviceTypeId;
             Amount = amount;
+            OriginalAmount = originalAmount;
+            CouponId = couponId;
             PaymentStatus = paymentStatus;
             Location = location;
             Address = address;
@@ -45,6 +47,9 @@ namespace Clean_Connect.Domain.Entities
         public TimeRange TimeRange { get; private set; } = default!;
 
         public decimal Amount { get; private set; } = default!;
+        public decimal OriginalAmount { get; private set; } = default!;
+        public Guid? CouponId { get; private set; }
+        public Coupon? Coupon { get; private set; }
         public DateTime DateOfService { get; private set; } = default!;
         public ServiceType ServiceType { get; private set; }
         public Guid ServiceTypeId { get; private set; } = default!;
@@ -53,9 +58,9 @@ namespace Clean_Connect.Domain.Entities
 
 
 
-        public static Booking Create(Guid clientId, Guid workerId, Location location, DateTime dateOfService, DateTime dateOfBooking, decimal amount, TimeRange timeRange, Address address, BookingStatus bookingStatus, PaymentStatus paymentStatus, Guid serviceTypeId, string? createdBy = null)
+        public static Booking Create(Guid clientId, Guid workerId, Location location, DateTime dateOfService, DateTime dateOfBooking, decimal amount, decimal originalAmount, TimeRange timeRange, Address address, BookingStatus bookingStatus, PaymentStatus paymentStatus, Guid serviceTypeId, Guid? couponId = null, string? createdBy = null)
         {
-            var booking = new Booking(clientId, workerId, dateOfBooking,location, dateOfService, amount, timeRange, paymentStatus, address, serviceTypeId, bookingStatus, createdBy);
+            var booking = new Booking(clientId, workerId, dateOfBooking,location, dateOfService, amount, originalAmount, timeRange, paymentStatus, address, serviceTypeId, bookingStatus, couponId, createdBy);
             booking.AddDomainEvent(new BookingCreatedEvent(booking.Id));
             booking.UpdateMetadata(createdBy);
             return booking;

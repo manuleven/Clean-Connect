@@ -1,9 +1,9 @@
-﻿using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Infrastructure.Context;
 
 namespace Clean_Connect.Persistence.Repositories
 {
-    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository, IWalletRepository walletRepository, IEscrowRepository escrowRepository) : IUnitOfWork
+    public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository, IWalletRepository walletRepository, IEscrowRepository escrowRepository, ICouponRepository couponRepository) : IUnitOfWork
     {
         public IWorkerRepository Workers { get;  } = workerRepository;
 
@@ -19,6 +19,8 @@ namespace Clean_Connect.Persistence.Repositories
         public IWalletRepository Wallets { get; } = walletRepository;
 
         public IEscrowRepository Escrows { get; } = escrowRepository;
+
+        public ICouponRepository Coupons { get; } = couponRepository;
 
         public async Task BeginTransactionAsync(CancellationToken cancellation)
         {

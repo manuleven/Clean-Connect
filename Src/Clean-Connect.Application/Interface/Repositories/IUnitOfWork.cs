@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +17,7 @@ namespace Clean_Connect.Application.Interface.Repositories
         IRatingRepository Ratings { get; }
         IWalletRepository Wallets { get; }
         IEscrowRepository Escrows { get; }
+        ICouponRepository Coupons { get; }
         Task BeginTransactionAsync(CancellationToken cancellation);
 
         Task CommitTransactionAsync(CancellationToken cancellation);
