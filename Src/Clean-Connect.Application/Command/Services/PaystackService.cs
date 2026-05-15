@@ -1,17 +1,10 @@
-﻿using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.Services
 {
@@ -194,24 +187,6 @@ namespace Clean_Connect.Application.Command.Services
 
             return paystackResponse.Data;
         }
-
-        private sealed record PaystackInitializeApiResponse(
-            bool Status,
-            string? Message,
-            PaystackInitializeData? Data);
-
-        private sealed record PaystackInitializeData(
-            [property: JsonPropertyName("authorization_url")] string AuthorizationUrl,
-            string Reference);
-
-        private sealed record PaystackTransferRecipientResponse(
-            bool Status,
-            string? Message,
-            TransferRecipientResponse? Data);
-
-        private sealed record PaystackTransferResponse(
-            bool Status,
-            string? Message,
-            TransferInitiationResponse? Data);
     }
 }
+

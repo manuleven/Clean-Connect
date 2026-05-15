@@ -9,8 +9,12 @@ namespace Clean_Connect.Application.Interface.Services
 {
     public interface IPaystackService
     {
-        Task <PaystackInitResponse> InitializePayment(decimal amount, string email, string reference);
+        Task<PaystackInitResponse> InitializePayment(decimal amount, string email, string reference);
 
         Task<PaystackVerifyResponse> VerifyTransaction(string reference);
+
+        Task<TransferRecipientResponse> CreateTransferRecipientAsync(WorkerBankAccountDto bankAccount, CancellationToken cancellationToken);
+
+        Task<TransferInitiationResponse> InitiateTransferAsync(string recipientCode, decimal amount, string reason, CancellationToken cancellationToken);
     }
 }
