@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,7 +13,7 @@ namespace Clean_Connect.Application.Query.PaymentQuery
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetAllPaymentsQueryHandler> _logger;
 
-        public GetAllPaymentsQueryHandler(IUnitOfWork unitOfWork, Logger<GetAllPaymentsQueryHandler> logger)
+        public GetAllPaymentsQueryHandler(IUnitOfWork unitOfWork, ILogger<GetAllPaymentsQueryHandler> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
