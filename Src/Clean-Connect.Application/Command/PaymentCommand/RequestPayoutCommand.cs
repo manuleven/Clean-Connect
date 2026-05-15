@@ -32,19 +32,19 @@ namespace Clean_Connect.Application.Command.PaymentCommand
             When(x => !string.IsNullOrWhiteSpace(x.AccountNumber)
                     || !string.IsNullOrWhiteSpace(x.BankCode)
                     || !string.IsNullOrWhiteSpace(x.AccountName), () =>
-            {
-                RuleFor(x => x.AccountNumber)
-                    .NotEmpty()
-                    .WithMessage("AccountNumber is required for external payout.");
+                    {
+                        RuleFor(x => x.AccountNumber)
+                            .NotEmpty()
+                            .WithMessage("AccountNumber is required for external payout.");
 
-                RuleFor(x => x.BankCode)
-                    .NotEmpty()
-                    .WithMessage("BankCode is required for external payout.");
+                        RuleFor(x => x.BankCode)
+                            .NotEmpty()
+                            .WithMessage("BankCode is required for external payout.");
 
-                RuleFor(x => x.AccountName)
-                    .NotEmpty()
-                    .WithMessage("AccountName is required for external payout.");
-            });
+                        RuleFor(x => x.AccountName)
+                            .NotEmpty()
+                            .WithMessage("AccountName is required for external payout.");
+                    });
         }
     }
 
