@@ -71,14 +71,7 @@ namespace Clean_Connect.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("check-reference-exists")]
-        public async Task<IActionResult> CheckPaymentReferenceExists(string reference, CancellationToken cancellationToken)
-        {
-            logger.LogInformation("Checking if payment reference exists: {Reference}", reference);
-            var query = new CheckPaymentReferenceExistsQuery(reference);
-            var result = await mediator.Send(query, cancellationToken).ConfigureAwait(false);
-            return Ok(new { exists = result, reference });
-        }
+       
 
         [HttpPost("initialize")]
         public async Task<IActionResult> Initialize([FromBody] InitializePaymentCommand command, CancellationToken cancellationToken)

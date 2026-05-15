@@ -107,7 +107,7 @@ namespace Clean_Connect.Application.Command.PaymentCommand
 
             // 2. Create payment (Pending)
 
-            var payment = Payment.Create(request.BookingId, booking.Amount, reference, request.PaymentMethod, request.TransactionId ?? string.Empty, request.CreatedBy);
+            var payment = Payment.Create(request.BookingId, booking.Amount, reference, request.PaymentMethod, request.TransactionId ?? string.Empty, DateTime.UtcNow, request.CreatedBy);
             logger.LogInformation("Created payment record for Booking ID: {BookingId} with Reference: {Reference}", request.BookingId, reference);
 
             await repo.Payments.CreatePayment(payment, cancellationToken);

@@ -6,12 +6,7 @@ using Clean_Connect.Domain.Value_Objects;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.ClientCommands
 {
