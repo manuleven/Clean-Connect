@@ -108,6 +108,7 @@ builder.Services.AddScoped<AcceptBookingService>();
 builder.Services.AddScoped<MarkAsCompletedService>();
 builder.Services.AddScoped<EscrowService>();
 builder.Services.AddScoped<PayoutService>();
+builder.Services.AddScoped<WalletService>();
 builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 
 

@@ -120,6 +120,25 @@ namespace Clean_Connect.Api.Controllers
             return Ok(new { success = result, message = "Payment deleted successfully" });
         }
 
+        [HttpPost("bookings/{bookingId:guid}/payout")]
+        public async Task<IActionResult> RequestPayout(Guid bookingId, [FromBody] PayoutRequest request, CancellationToken cancellationToken)
+        {
+            logger.LogInformation("Payout requested for booking {BookingId} by worker {WorkerId}", bookingId, request.WorkerId);
+
+            var command = new RequestPayoutCommand(
+                bookingId,
+                request.WorkerId,
+                request.AccountNumber,
+                request.BankCode,
+                request.AccountName,
+                request.Currency,
+                request.ModifiedBy);
+
+            var result = await mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+
         [HttpPost("paystack/webhook")]
         [AllowAnonymous]
         public async Task<IActionResult> PaystackWebhook(CancellationToken cancellationToken)
