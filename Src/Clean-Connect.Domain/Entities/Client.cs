@@ -69,6 +69,8 @@ namespace Clean_Connect.Domain.Entities
 
         public Client? ReferredBy { get; private set; }
 
+        public int SuccessfulReferralCount { get; private set; }
+
         // Factory method to create a new Clients instance
         public static Client Create(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string referralCode, string? createdBy = null)
         {
@@ -91,6 +93,11 @@ namespace Clean_Connect.Domain.Entities
                 throw new InvalidOperationException("A client cannot refer themselves.");
 
             ReferredById = referrerId;
+        }
+
+        public void IncrementSuccessfulReferral()
+        {
+            SuccessfulReferralCount++;
         }
 
         // Methods to update properties

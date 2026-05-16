@@ -92,6 +92,9 @@ namespace Clean_Connect.Infrastructure.Configuration
                 .WithMany()
                 .HasForeignKey(x => x.ReferredById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(x => x.SuccessfulReferralCount)
+                .HasDefaultValue(0);
         }
     }
 }

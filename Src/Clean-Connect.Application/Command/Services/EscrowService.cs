@@ -35,7 +35,7 @@ namespace Clean_Connect.Application.Command.Services
                 booking.Id,
                 payment.Id,
                 booking.WorkerId,
-                payment.Amount);
+                booking.OriginalAmount);
 
             await repo.Escrows.CreateEscrow(escrow, cancellationToken);
 

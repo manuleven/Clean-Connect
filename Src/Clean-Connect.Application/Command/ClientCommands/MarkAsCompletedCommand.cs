@@ -1,4 +1,4 @@
-﻿using Azure.Core;
+using Azure.Core;
 using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Command.WorkerCommands;
 using Clean_Connect.Application.Interface.Repositories;
@@ -56,6 +56,32 @@ namespace Clean_Connect.Application.Command.ClientCommands
 
             booking.MarkAsCompleted();
             await escrowService.ReleaseEscrowToWorkerWalletAsync(booking, request.ClientId.ToString(), cancellationToken);
+
+            // Referral Reward Logic
+            var client = await repo.Clients.GetClientById(request.ClientId, cancellationToken);
+            if (client != null && client.ReferredById.HasValue)
+            {
+                // Check if this is the first completed booking for this client
+                var completedBookingsCount = client.Bookings.Count(b => b.BookingStatus == Domain.Enums.BookingStatus.Completed);
+                if (completedBookingsCount == 1) // It's 1 because we just called booking.MarkAsCompleted() locally? 
+                                                // Actually, the database hasn't been updated yet.
+                {
+                    var referrer = await repo.Clients.GetClientById(client.ReferredById.Value, cancellationToken);
+                    if (referrer != null)
+                    {
+                        referrer.IncrementSuccessfulReferral();
+                        logger.LogInformation("Referrer {ReferrerId} successful referral count: {Count}", referrer.Id, referrer.SuccessfulReferralCount);
+
+                        if (referrer.SuccessfulReferralCount % 10 == 0)
+                        {
+                            var couponCode = $"REF-30-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+                            var coupon = Coupon.Create(couponCode, 30, DateTime.UtcNow.AddMonths(1), 1, "System-Referral");
+                            await repo.Coupons.CreateCouponAsync(coupon, cancellationToken);
+                            logger.LogInformation("Generated 30% referral coupon for referrer {ReferrerId}: {CouponCode}", referrer.Id, couponCode);
+                        }
+                    }
+                }
+            }
 
             logger.LogInformation("Worker {WorkerId} Completed booking {BookingId}", booking.WorkerId, request.BookingId);
 

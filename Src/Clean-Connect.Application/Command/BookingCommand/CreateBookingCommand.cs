@@ -91,6 +91,16 @@ namespace Clean_Connect.Application.Command.BookingCommand
                 coupon.IncrementUsage(request.CreatedBy);
                 couponId = coupon.Id;
             }
+            else
+            {
+                // New Year Logic: Automatic 10% discount if it's the first week of Jan
+                var now = DateTime.UtcNow;
+                if (now.Month == 1 && now.Day <= 7)
+                {
+                    amount = originalAmount * 0.9m;
+                    logger.LogInformation("Applied automatic 10% New Year discount for booking.");
+                }
+            }
 
             var discoverAddress = await geocodingService.GetAddressAsync(request.Latitude, request.Longitude);
 
