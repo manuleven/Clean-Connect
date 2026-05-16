@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -80,7 +80,18 @@ namespace Clean_Connect.Infrastructure.Configuration
             builder.Property(x => x.Gender)
                 .IsRequired()
                 .HasConversion<string>();
-                
+
+            builder.Property(x => x.ReferralCode)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            builder.HasIndex(x => x.ReferralCode)
+                .IsUnique();
+
+            builder.HasOne(x => x.ReferredBy)
+                .WithMany()
+                .HasForeignKey(x => x.ReferredById)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

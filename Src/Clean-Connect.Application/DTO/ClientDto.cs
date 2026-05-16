@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,5 +23,7 @@ namespace Clean_Connect.Application.DTO
         public DateTime DateOfBirth { get; set; }
 
         public string State { get; set; }
+
+        public string ReferralCode { get; set; }
     }
 }

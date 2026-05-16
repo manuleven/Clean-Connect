@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +51,11 @@ namespace Clean_Connect.Persistence.Repositories
         public async Task DeleteClient(Client client, CancellationToken cancellationToken)
         {
             dbContext.Clients.Remove(client);
+        }
+
+        public async Task<Client?> GetByReferralCodeAsync(string referralCode, CancellationToken cancellationToken)
+        {
+            return await dbContext.Clients.FirstOrDefaultAsync(x => x.ReferralCode == referralCode, cancellationToken);
         }
     }
 }

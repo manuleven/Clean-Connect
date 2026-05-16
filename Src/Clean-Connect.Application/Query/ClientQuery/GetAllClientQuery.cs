@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -44,7 +44,8 @@ namespace Clean_Connect.Application.Query.ClientQuery
                 Contact = client.PhoneNumber,
                 DateOfBirth = client.DateOfBirth,
                 Gender = client.Gender.ToString(),
-                State = client.State
+                State = client.State,
+                ReferralCode = client.ReferralCode
             }).ToList();
 
             logger.LogInformation("Successfully retrieved {Count} clients", clientDtos.Count);

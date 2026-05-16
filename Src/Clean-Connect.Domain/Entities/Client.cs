@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Domain.Enums;
+using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Events;
 using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
@@ -12,7 +12,7 @@ namespace Clean_Connect.Domain.Entities
 
 
         // Private constructor to initialize properties
-        private Client(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
+        private Client(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string referralCode, string? createdBy = null)
         {
             FullName = name ?? throw new ArgumentNullException(nameof(name));
             Address = address ?? throw new ArgumentNullException(nameof(address));
@@ -24,6 +24,7 @@ namespace Clean_Connect.Domain.Entities
             State = state;
             ValidateDateOfBirth(dob);
             DateOfBirth = dob;
+            ReferralCode = referralCode;
             UpdateMetadata(createdBy);
         }
 
@@ -62,13 +63,19 @@ namespace Clean_Connect.Domain.Entities
 
         public DateTime DateOfBirth { get; private set; }
 
+        public string ReferralCode { get; private set; } = default!;
+
+        public Guid? ReferredById { get; private set; }
+
+        public Client? ReferredBy { get; private set; }
+
         // Factory method to create a new Clients instance
-        public static Client Create(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string? createdBy = null)
+        public static Client Create(FullName name, Address address, Email email, Location location, Gender gender, PhoneNumber contact, string state, DateTime dob, string referralCode, string? createdBy = null)
         {
             ValidateDateOfBirth(dob);
             ValidateState(state);
 
-            var client = new Client(name, address, email, location, gender, contact, state, dob);
+            var client = new Client(name, address, email, location, gender, contact, state, dob, referralCode);
             //Domain Event
             client.AddDomainEvent(new ClientCreatedDomainEvent(client.Id));
 
@@ -76,6 +83,14 @@ namespace Clean_Connect.Domain.Entities
             return client;
 
 
+        }
+
+        public void SetReferrer(Guid referrerId)
+        {
+            if (referrerId == Id)
+                throw new InvalidOperationException("A client cannot refer themselves.");
+
+            ReferredById = referrerId;
         }
 
         // Methods to update properties

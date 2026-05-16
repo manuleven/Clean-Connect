@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,5 +22,7 @@ namespace Clean_Connect.Application.Interface.Repositories
         Task<Client> GetByEmail(string email, CancellationToken cancellationToken);
 
         Task<Client> GetClientByName(string name, CancellationToken cancellationToken);
+
+        Task<Client?> GetByReferralCodeAsync(string referralCode, CancellationToken cancellationToken);
     }
 }

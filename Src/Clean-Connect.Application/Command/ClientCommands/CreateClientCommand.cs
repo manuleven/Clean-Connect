@@ -1,7 +1,8 @@
-﻿using Clean_Connect.Application.Command.Services;
+using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Enums;
+using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
 using FluentValidation;
 using MediatR;
@@ -10,7 +11,7 @@ using System.Data;
 
 namespace Clean_Connect.Application.Command.ClientCommands
 {
-    public record CreateClientCommand(string FirstName, string LastName, string Email, double Latitude, double Longitude, string Contact,  string Gender, string State, DateTime Dob, string? CreatedBy = null) : IRequest<bool>;
+    public record CreateClientCommand(string FirstName, string LastName, string Email, double Latitude, double Longitude, string Contact,  string Gender, string State, DateTime Dob, string? ReferrerCode = null, string? CreatedBy = null) : IRequest<bool>;
 
     public class CreateClientValidator : AbstractValidator<CreateClientCommand>
     {
@@ -101,6 +102,8 @@ namespace Clean_Connect.Application.Command.ClientCommands
                 throw new Exception("Location must be in Nigeria.");
             var address = Address.Create(discoverAddress);
             var contact = PhoneNumber.Create(request.Contact);
+            var referralCode = ReferralCodeGenerator.Generate(request.FirstName);
+            
             var client = Client.Create(
                 fullname,
                 address,
@@ -110,7 +113,22 @@ namespace Clean_Connect.Application.Command.ClientCommands
                 contact,
                 request.State,
                 request.Dob,
+                referralCode,
                 request.CreatedBy);
+
+            if (!string.IsNullOrWhiteSpace(request.ReferrerCode))
+            {
+                var referrer = await repo.Clients.GetByReferralCodeAsync(request.ReferrerCode, cancellationToken);
+                if (referrer != null)
+                {
+                    client.SetReferrer(referrer.Id);
+                    logger.LogInformation("Client {ClientId} referred by {ReferrerId}", client.Id, referrer.Id);
+                }
+                else
+                {
+                    logger.LogWarning("Invalid referrer code provided: {ReferrerCode}", request.ReferrerCode);
+                }
+            }
 
             await repo.Clients.CreateClient(client, cancellationToken);
             var result = await repo.SaveChangesAsync(cancellationToken) > 0;

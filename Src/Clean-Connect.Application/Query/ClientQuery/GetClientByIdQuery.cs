@@ -1,4 +1,4 @@
-﻿using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.DTO;
 using Clean_Connect.Application.Interface.Repositories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -49,7 +49,8 @@ namespace Clean_Connect.Application.Query.ClientQuery
                 Gender = check.Gender.ToString(),
                 Age = check.Age,
                 Email = check.Email,
-                Contact = check.PhoneNumber
+                Contact = check.PhoneNumber,
+                ReferralCode = check.ReferralCode
             };
 
             logger.LogInformation("GetWorkerByIdQueryHandler: Successfully retrieved worker with Id {WorkerId}.", request.Id);
