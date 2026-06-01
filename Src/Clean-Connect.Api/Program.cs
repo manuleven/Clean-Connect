@@ -4,12 +4,15 @@ using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Utilities;
+using Clean_Connect.Infrastructure.Configuration;
 using Clean_Connect.Infrastructure.Context;
 using Clean_Connect.Persistence.Repositories;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -79,6 +82,33 @@ builder.Services.AddAuthentication(options =>
 // --------------------
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
+
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+// --------------------
+// CORS Configuration
+// --------------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // --------------------
 // Controllers & Swagger
 // --------------------
@@ -110,6 +140,8 @@ builder.Services.AddScoped<EscrowService>();
 builder.Services.AddScoped<PayoutService>();
 builder.Services.AddScoped<WalletService>();
 builder.Services.AddHttpClient<IPaystackService, PaystackService>();
+
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 
 
@@ -155,6 +187,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // ? MUST come BEFORE UseAuthorization
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -169,5 +202,14 @@ app.MapGet("/", context =>
     context.Response.Redirect("/swagger");
     return Task.CompletedTask;
 });
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var logger = services.GetRequiredService<ILogger<RoleSeeder>>();
+    var roleSeeder = new RoleSeeder(roleManager, logger);
+    await roleSeeder.SeedRolesAsync();
+}
 
 app.Run();

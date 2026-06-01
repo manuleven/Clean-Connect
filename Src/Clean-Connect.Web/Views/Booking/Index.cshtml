@@ -1,0 +1,109 @@
+@model BookingPageViewModel
+@{
+    ViewData["Title"] = "Book a Cleaning";
+    ViewData["BodyClass"] = "booking-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell page-hero__grid">
+        <div>
+            <p class="eyebrow">Smart booking</p>
+            <h1>Choose a service, set the schedule, and match with a verified cleaner.</h1>
+            <p>Mobile-first booking with transparent pricing, service context, address details, and cleaner matching in one focused flow.</p>
+        </div>
+        <ol class="flow-list" aria-label="Booking progress">
+            @foreach (var step in Model.Steps)
+            {
+                @await Html.PartialAsync("_BookingStep", step)
+            }
+        </ol>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell app-workspace booking-workspace" data-booking-page>
+        <div class="workspace-main">
+            <div class="section-heading section-heading--left">
+                <p class="eyebrow">Service</p>
+                <h2>Select your cleaning package.</h2>
+            </div>
+            <div class="booking-options">
+                @foreach (var option in Model.Options)
+                {
+                    <button class="booking-option @(option.Featured ? "is-selected" : "")" type="button" data-service-option data-name="@option.Name" data-price="@option.Price" data-duration="@option.Duration" aria-pressed="@(option.Featured ? "true" : "false")">
+                        <span class="icon-bubble icon-bubble--@(option.Featured ? "mint" : "sky")">
+                            @await Html.PartialAsync("_AppIcon", option.Icon)
+                        </span>
+                        <span>
+                            <strong>@option.Name</strong>
+                            <small>@option.Detail</small>
+                        </span>
+                        <span class="booking-option__price">₦@option.Price.ToString("N0")</span>
+                    </button>
+                }
+            </div>
+
+            <div class="form-panel reveal-lift">
+                <div class="form-grid">
+                    <label class="field-shell">
+                        <span>Date</span>
+                        <input type="date" value="2026-05-24" />
+                    </label>
+                    <label class="field-shell">
+                        <span>Time window</span>
+                        <select>
+                            <option>Morning, 8 AM - 12 PM</option>
+                            <option selected>Afternoon, 12 PM - 4 PM</option>
+                            <option>Evening, 4 PM - 8 PM</option>
+                        </select>
+                    </label>
+                    <label class="field-shell field-shell--wide">
+                        <span>Service address</span>
+                        <input type="text" value="18 Admiralty Way, Lekki Phase 1" />
+                    </label>
+                    <label class="field-shell field-shell--wide">
+                        <span>Cleaning notes</span>
+                        <textarea rows="4">Focus on kitchen appliances, shower glass, and window tracks.</textarea>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <aside class="summary-panel booking-summary">
+            <div class="cleaner-card">
+                <span class="avatar-token">@Model.RecommendedCleaner.Initials</span>
+                <div>
+                    <strong>@Model.RecommendedCleaner.Name</strong>
+                    <small>@Model.RecommendedCleaner.Specialty</small>
+                </div>
+                <span class="rating-pill">@Model.RecommendedCleaner.Rating</span>
+            </div>
+            <dl class="summary-list">
+                <div>
+                    <dt>Selected service</dt>
+                    <dd data-selected-service>Premium Deep Clean</dd>
+                </div>
+                <div>
+                    <dt>Duration</dt>
+                    <dd data-selected-duration>4-8 hrs</dd>
+                </div>
+                <div>
+                    <dt>Arrival</dt>
+                    <dd>@Model.RecommendedCleaner.ArrivalWindow</dd>
+                </div>
+                <div>
+                    <dt>Cleaner jobs</dt>
+                    <dd>@Model.RecommendedCleaner.CompletedJobs completed</dd>
+                </div>
+            </dl>
+            <div class="price-total">
+                <span>Total estimate</span>
+                <strong data-selected-price>₦42,000</strong>
+            </div>
+            <a class="btn-clean btn-clean--primary btn-clean--full" asp-controller="Payments" asp-action="Index">
+                @await Html.PartialAsync("_AppIcon", "card")
+                <span>Continue to payment</span>
+            </a>
+        </aside>
+    </div>
+</section>

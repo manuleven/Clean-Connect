@@ -42,15 +42,21 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
         }
     }
 
-    public class RegisterUserCommandHandler(UserManager<ApplicationUser> user, ILogger<RegisterUserCommandHandler> logger, IConfiguration _configuration, IMediator mediator) : IRequestHandler<RegisterUserCommand, Guid>
+    public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Guid>
     {
 
-        ////private readonly IConfiguration _configuration;
+        private readonly IConfiguration configuration;
+        private readonly UserManager<ApplicationUser> user;
+        private readonly ILogger<RegisterUserCommandHandler> logger;
+         private readonly IMediator mediator;
 
-        //public RegisterUserCommandHandler(IConfiguration configuration)
-        //{
-        //    _configuration = configuration;
-        //}
+        public RegisterUserCommandHandler(IConfiguration _configuration, ILogger<RegisterUserCommandHandler> _logger, IMediator _mediator, UserManager<ApplicationUser> _user)
+        {
+            logger = _logger;
+            mediator = _mediator;
+               user = _user;
+            configuration = _configuration;
+        }
 
 
         public async Task<Guid> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -82,7 +88,7 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
 
             var token = await user.GenerateEmailConfirmationTokenAsync(newUser);
 
-            var confirmationLink = $"{_configuration["App:ClientUrl"]}/confirm-email?userId={newUser.Id}&token={Uri.EscapeDataString(token)}";
+            var confirmationLink = $"{configuration["App:ClientUrl"]}/confirm-email?userId={newUser.Id}&token={Uri.EscapeDataString(token)}";
 
             var emailMessage = new EmailSenderCommand(
                 ToEmail: newUser.Email,

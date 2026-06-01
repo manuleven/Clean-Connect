@@ -1,0 +1,76 @@
+@model CouponsPortalViewModel
+@{
+    ViewData["Title"] = "Coupons";
+    ViewData["BodyClass"] = "coupons-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell">
+        <p class="eyebrow">Coupon campaigns</p>
+        <h1>Create, validate, monitor, and retire promotional coupons.</h1>
+        <p>Coupons deserve a dashboard because discounts affect revenue, booking conversion, and referral growth.</p>
+    </div>
+</section>
+
+<section class="page-section page-section--tight">
+    <div class="page-shell metrics-grid">
+        @foreach (var metric in Model.Metrics)
+        {
+            @await Html.PartialAsync("_MetricCard", metric)
+        }
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell app-workspace ops-workspace">
+        <div class="workspace-main">
+            <div class="section-heading section-heading--left">
+                <p class="eyebrow">Campaigns</p>
+                <h2>Active and expired coupons.</h2>
+            </div>
+            <div class="resource-list">
+                @foreach (var coupon in Model.Coupons)
+                {
+                    var usedPercent = coupon.UsageLimit == 0 ? 0 : Math.Min(100, (coupon.UsedCount * 100) / coupon.UsageLimit);
+                    <article class="coupon-row">
+                        <span>
+                            <strong>@coupon.Code</strong>
+                            <small>@coupon.DiscountPercentage.ToString("0")% off · expires @coupon.Expiry</small>
+                        </span>
+                        <span class="usage-meter" aria-label="@usedPercent% used">
+                            <span style="width: @usedPercent%"></span>
+                        </span>
+                        <span>@coupon.UsedCount/@coupon.UsageLimit</span>
+                        <span class="status-pill">@(coupon.IsActive ? "Active" : "Closed")</span>
+                    </article>
+                }
+            </div>
+        </div>
+
+        <aside class="summary-panel">
+            <h2>Create coupon</h2>
+            <div class="form-grid form-grid--single">
+                <label class="field-shell">
+                    <span>Code</span>
+                    <input type="text" value="CLEAN10" />
+                </label>
+                <label class="field-shell">
+                    <span>Discount percentage</span>
+                    <input type="number" value="10" />
+                </label>
+                <label class="field-shell">
+                    <span>Usage limit</span>
+                    <input type="number" value="500" />
+                </label>
+                <label class="field-shell">
+                    <span>Expiration date</span>
+                    <input type="date" value="2026-06-30" />
+                </label>
+            </div>
+            <button class="btn-clean btn-clean--primary btn-clean--full" type="button">
+                @await Html.PartialAsync("_AppIcon", "sparkle")
+                <span>Save coupon</span>
+            </button>
+        </aside>
+    </div>
+</section>

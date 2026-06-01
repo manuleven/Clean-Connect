@@ -1,0 +1,277 @@
+@{
+    ViewData["Title"] = "My Profile Dashboard";
+    ViewData["BodyClass"] = "profile-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell">
+        <p class="eyebrow" style="margin-bottom: 0.5rem;">Client portal</p>
+        <h1>Welcome back to your operations dashboard.</h1>
+        <p>Manage your account, track active cleaning bookings, share your referral code, and claim discount rewards.</p>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell">
+        <div id="unauth-warning" class="coupon-feedback-bubble coupon-feedback-bubble--error" style="display: none; align-items: center; justify-content: space-between; margin-bottom: 2rem; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                @await Html.PartialAsync("_AppIcon", "shield")
+                <span>Session expired or not logged in. Please sign in to access your profile.</span>
+            </div>
+            <a asp-controller="Account" asp-action="Login" class="btn-clean btn-clean--secondary" style="min-height: 2.2rem; padding: 0.35rem 0.85rem;">Sign In</a>
+        </div>
+
+        <div id="profile-content" class="profile-grid-premium" style="display: none;">
+            
+            <!-- LEFT COLUMN: USER INFO CARD -->
+            <aside class="profile-card-premium reveal-lift">
+                <div class="profile-card-premium__avatar" id="profile-avatar">U</div>
+                <h3 id="profile-fullname">User Account</h3>
+                <p id="profile-state-badge" style="margin-bottom: 1.5rem;"><span class="soft-badge" style="background: var(--mint-soft); color: var(--brand); border-color: var(--mint);">Active Client</span></p>
+                
+                <dl class="profile-details-list">
+                    <div class="profile-details-item">
+                        <dt>Email Address</dt>
+                        <dd id="profile-email">email@example.com</dd>
+                    </div>
+                    <div class="profile-details-item">
+                        <dt>Contact Number</dt>
+                        <dd id="profile-contact">080xxxxxxxx</dd>
+                    </div>
+                    <div class="profile-details-item">
+                        <dt>State Location</dt>
+                        <dd id="profile-state">Lagos</dd>
+                    </div>
+                    <div class="profile-details-item">
+                        <dt>Age (DOB)</dt>
+                        <dd id="profile-age">24 yrs</dd>
+                    </div>
+                </dl>
+
+                <div style="display: flex; flex-direction: column; width: 100%; gap: 0.75rem; margin-top: 1.5rem;">
+                    <a asp-controller="Booking" asp-action="Index" class="btn-clean btn-clean--primary btn-clean--full">
+                        @await Html.PartialAsync("_AppIcon", "calendar")
+                        <span>Book New Cleaning</span>
+                    </a>
+                    <button onclick="handleLogout()" class="btn-clean btn-clean--ghost btn-clean--full" style="color: var(--rose); border-color: color-mix(in srgb, var(--rose) 40%, transparent);">
+                        @await Html.PartialAsync("_AppIcon", "shield")
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- RIGHT COLUMN: REFERRALS AND REWARDS -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                
+                <!-- REFERRAL BLOCK -->
+                <div class="referral-box-premium reveal-lift">
+                    <div class="section-heading section-heading--left" style="margin-bottom: 0;">
+                        <p class="eyebrow" style="color: var(--mint);">Referral Program</p>
+                        <h2 style="font-size: 1.5rem;">Invite friends, earn 30% off!</h2>
+                        <p style="margin-top: 0.5rem;">Share your code with friends. For every friend who completes their first booking, you get closer to a massive **30% discount coupon**! After **10 successful referrals**, it is granted automatically.</p>
+                    </div>
+
+                    <div class="referral-code-lockup">
+                        <span class="referral-code-lockup__label">Your Shareable Code</span>
+                        <div class="referral-code-flex">
+                            <span class="referral-code-value" id="referral-code">CLEAN-XYZ</span>
+                            <button onclick="copyReferralCode()" class="btn-copy" id="btn-copy">
+                                @await Html.PartialAsync("_AppIcon", "route")
+                                <span>Copy Code</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="referral-progress-wrap">
+                        <div class="referral-progress-info">
+                            <span>Program Progress</span>
+                            <span id="referral-ratio">0 / 10 referrals</span>
+                        </div>
+                        <div class="referral-progress-bar">
+                            <div class="referral-progress-bar__fill" id="referral-progress-fill" style="width: 0%;"></div>
+                        </div>
+                        <p class="referral-progress-caption" id="referral-status-caption">You need 10 successful referrals to claim your 30% discount coupon. Start sharing!</p>
+                    </div>
+                </div>
+
+                <!-- MY COUPONS BLOCK -->
+                <div class="referral-box-premium reveal-lift" style="gap: 1rem;">
+                    <div class="section-heading section-heading--left" style="margin-bottom: 0.5rem;">
+                        <h2 style="font-size: 1.5rem;">Your Available Coupons</h2>
+                        <p style="margin-top: 0.25rem;">Use these codes at the checkout to redeem premium cleaning discounts.</p>
+                    </div>
+
+                    <div class="coupons-grid-premium" id="coupons-container">
+                        <!-- Coupons will be dynamically loaded here -->
+                        <div class="coupon-ticket">
+                            <div class="coupon-ticket__left">
+                                <strong>CLEAN10</strong>
+                                <small>Active 10% New Year Discount</small>
+                            </div>
+                            <span class="coupon-ticket__badge">10% OFF</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        window.addEventListener("load", async () => {
+            const token = localStorage.getItem("clean_connect_token");
+            const email = localStorage.getItem("clean_connect_user_email");
+            const unauthWarning = document.getElementById("unauth-warning");
+            const profileContent = document.getElementById("profile-content");
+
+            if (!token || !email) {
+                unauthWarning.style.display = "flex";
+                profileContent.style.display = "none";
+                return;
+            }
+
+            unauthWarning.style.display = "none";
+            profileContent.style.display = "grid";
+
+            // Set default view values from local storage if they exist
+            const cachedClient = localStorage.getItem("clean_connect_client");
+            if (cachedClient) {
+                renderClientDetails(JSON.parse(cachedClient));
+            }
+
+            // Perform dynamic refresh by querying database
+            try {
+                const response = await fetch("http://localhost:5022/api/Client/all-clients", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const clients = await response.json();
+                    // Match logged in client by email
+                    const client = clients.find(c => c.email && c.email.value && c.email.value.toLowerCase() === email.toLowerCase());
+                    
+                    if (client) {
+                        localStorage.setItem("clean_connect_client", JSON.stringify(client));
+                        renderClientDetails(client);
+                    }
+                }
+            } catch (err) {
+                console.error("Error refreshing client statistics:", err);
+            }
+
+            // Dynamically load coupons
+            await loadCoupons();
+        });
+
+        function renderClientDetails(client) {
+            const firstName = client.fullName.firstName;
+            const lastName = client.fullName.lastName;
+            const initials = (firstName[0] || "") + (lastName[0] || "");
+            
+            document.getElementById("profile-avatar").innerText = initials.toUpperCase();
+            document.getElementById("profile-fullname").innerText = `${firstName} ${lastName}`;
+            document.getElementById("profile-email").innerText = client.email.value;
+            document.getElementById("profile-contact").innerText = client.phoneNumber.value || client.contact;
+            document.getElementById("profile-state").innerText = client.state;
+            
+            // Format age from DOB
+            const dob = new Date(client.dateOfBirth);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const m = today.getMonth() - dob.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            document.getElementById("profile-age").innerText = `${age} yrs (${dob.toLocaleDateString()})`;
+
+            // Set referral code
+            const referralCode = client.referralCode || "CLEANER-" + firstName.toUpperCase();
+            document.getElementById("referral-code").innerText = referralCode;
+
+            // Set referral statistics
+            const successfulReferrals = client.successfulReferralCount || 0;
+            document.getElementById("referral-ratio").innerText = `${successfulReferrals} / 10 referrals`;
+            
+            const percentage = Math.min((successfulReferrals / 10) * 100, 100);
+            document.getElementById("referral-progress-fill").style.width = `${percentage}%`;
+
+            if (successfulReferrals >= 10) {
+                document.getElementById("referral-status-caption").innerHTML = `🎉 **Congratulations!** You've completed ${successfulReferrals} successful referrals! A 30% discount coupon has been automatically generated for you.`;
+            } else {
+                document.getElementById("referral-status-caption").innerText = `You need ${10 - successfulReferrals} more successful referrals to earn your 30% discount coupon. Start sharing!`;
+            }
+        }
+
+        async function loadCoupons() {
+            const container = document.getElementById("coupons-container");
+            const token = localStorage.getItem("clean_connect_token");
+
+            try {
+                const res = await fetch("http://localhost:5022/api/Coupon", {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (res.ok) {
+                    const coupons = await res.json();
+                    
+                    if (coupons.length > 0) {
+                        container.innerHTML = "";
+                        coupons.forEach(c => {
+                            if (c.isActive) {
+                                const discountText = c.discountPercentage ? `${c.discountPercentage}% OFF` : "FREE";
+                                const descText = c.discountPercentage === 30 ? "Successful Referral Reward!" : "Active Operations Discount";
+                                
+                                container.innerHTML += `
+                                    <div class="coupon-ticket">
+                                        <div class="coupon-ticket__left">
+                                            <strong>${c.code}</strong>
+                                            <small>${descText}</small>
+                                        </div>
+                                        <span class="coupon-ticket__badge" style="background: ${c.discountPercentage === 30 ? 'var(--mint)' : 'var(--brand-strong)'}">${discountText}</span>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error("Could not fetch database coupons dynamically:", err);
+            }
+        }
+
+        function copyReferralCode() {
+            const codeText = document.getElementById("referral-code").innerText;
+            const btn = document.getElementById("btn-copy");
+            const btnSpan = btn.querySelector("span");
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                btn.classList.add("copied");
+                btnSpan.innerText = "Copied!";
+                
+                setTimeout(() => {
+                    btn.classList.remove("copied");
+                    btnSpan.innerText = "Copy Code";
+                }, 2000);
+            }).catch(err => {
+                console.error("Failed to copy referral code:", err);
+            });
+        }
+
+        function handleLogout() {
+            // Clear local storage session
+            localStorage.removeItem("clean_connect_token");
+            localStorage.removeItem("clean_connect_user_email");
+            localStorage.removeItem("clean_connect_user_id");
+            localStorage.removeItem("clean_connect_client");
+            
+            // Redirect to home
+            window.location.href = '@Url.Action("Logout", "Account")';
+        }
+    </script>
+}

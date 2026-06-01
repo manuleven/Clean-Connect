@@ -1,0 +1,72 @@
+@model ServicesPortalViewModel
+@{
+    ViewData["Title"] = "Service Types";
+    ViewData["BodyClass"] = "services-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell">
+        <p class="eyebrow">Service type manager</p>
+        <h1>Create, price, publish, and update cleaning service types.</h1>
+        <p>This frontend maps to the service-type API and gives admins a production-ready catalog surface instead of raw endpoints.</p>
+    </div>
+</section>
+
+<section class="page-section page-section--tight">
+    <div class="page-shell metrics-grid">
+        @foreach (var metric in Model.Metrics)
+        {
+            @await Html.PartialAsync("_MetricCard", metric)
+        }
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell app-workspace ops-workspace">
+        <div class="workspace-main">
+            <div class="section-heading section-heading--left">
+                <p class="eyebrow">Catalog</p>
+                <h2>Managed service types.</h2>
+            </div>
+            <div class="resource-grid">
+                @foreach (var service in Model.Services)
+                {
+                    <article class="resource-card tilt-card">
+                        <span class="icon-bubble icon-bubble--mint">
+                            @await Html.PartialAsync("_AppIcon", service.Icon)
+                        </span>
+                        <h3>@service.Name</h3>
+                        <p>@service.Description</p>
+                        <div class="resource-card__footer">
+                            <strong>₦@service.Amount.ToString("N0")</strong>
+                            <span class="status-pill">@service.Status</span>
+                        </div>
+                        <small>Modified by @service.ModifiedBy</small>
+                    </article>
+                }
+            </div>
+        </div>
+
+        <aside class="summary-panel">
+            <h2>Create service type</h2>
+            <div class="form-grid form-grid--single">
+                <label class="field-shell">
+                    <span>Name</span>
+                    <input type="text" value="Premium Deep Clean" />
+                </label>
+                <label class="field-shell">
+                    <span>Amount</span>
+                    <input type="number" value="42000" />
+                </label>
+                <label class="field-shell">
+                    <span>Description</span>
+                    <textarea rows="5">Detailed top-to-bottom cleaning for kitchens, bathrooms, appliances, and high-touch areas.</textarea>
+                </label>
+            </div>
+            <button class="btn-clean btn-clean--primary btn-clean--full" type="button">
+                @await Html.PartialAsync("_AppIcon", "check")
+                <span>Publish service</span>
+            </button>
+        </aside>
+    </div>
+</section>

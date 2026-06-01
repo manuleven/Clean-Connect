@@ -1,10 +1,12 @@
 ﻿using Clean_Connect.Application.Command.BookingCommand;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Clean_Connect.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class BookingController : ControllerBase
     {
@@ -16,7 +18,7 @@ namespace Clean_Connect.Api.Controllers
             mediator = _mediator;
         }
 
-
+        [Authorize(Roles ="Worker, Client")]
         [HttpPost("create-Booking")]
 
         public async Task<IActionResult> CreateBooking([FromBody] CreateBookingCommand booking, CancellationToken cancellationToken)

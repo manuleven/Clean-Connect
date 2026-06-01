@@ -27,7 +27,9 @@ namespace Clean_Connect.Application.Query.WorkersQuery
                 escrow.WorkerId,
                 escrow.Amount,
                 escrow.Status,
-                escrow.DateReleased);
+                escrow.DateReleased,
+                escrow.PaystackTransferCode,
+                escrow.DatePaidOut);
         }
     }
 }

@@ -63,6 +63,12 @@ namespace Clean_Connect.Application.Command.Services
                 return;
             }
 
+            if (escrow.Status == EscrowStatus.PaidOut)
+            {
+                logger.LogInformation("Escrow for booking {BookingId} has already been paid out", booking.Id);
+                return;
+            }
+
             if (escrow.Status != EscrowStatus.Held)
                 throw new InvalidOperationException($"Escrow cannot be released from {escrow.Status} status.");
 

@@ -1,0 +1,250 @@
+@{
+    ViewData["Title"] = "Create Account";
+    ViewData["BodyClass"] = "auth-page";
+}
+
+<div class="auth-wrapper" style="padding: 1.5rem 1rem;">
+    <div class="ambient-glow ambient-glow--top-left"></div>
+    <div class="ambient-glow ambient-glow--bottom-right"></div>
+
+    <div class="auth-card reveal-lift" style="max-width: 600px; padding: 2rem 2.2rem;">
+        <div class="auth-card__header" style="margin-bottom: 1.5rem;">
+            <span class="brand-mark" style="margin: 0 auto 0.75rem; width: 3.2rem; height: 3.2rem; font-size: 1.3rem;">
+                @await Html.PartialAsync("_AppIcon", "sparkle")
+            </span>
+            <h2>Premium Sign Up</h2>
+            <p>Create your Clean Connect account to book, secure and track premium cleaning jobs.</p>
+        </div>
+
+        <div id="register-error" class="coupon-feedback-bubble coupon-feedback-bubble--error" style="margin-bottom: 1.25rem; width: 100%; display: none;">
+            @await Html.PartialAsync("_AppIcon", "shield")
+            <span id="error-message">Failed to create account.</span>
+        </div>
+
+        <form id="register-form" onsubmit="handleRegister(event)">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                <div class="form-group-clean">
+                    <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" class="input-clean" placeholder="e.g. Amara" required />
+                </div>
+                <div class="form-group-clean">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" id="last-name" class="input-clean" placeholder="e.g. Okafor" required />
+                </div>
+            </div>
+
+            <div class="form-group-clean">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="input-clean" placeholder="name@example.com" required autocomplete="email" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.85rem;">
+                <div class="form-group-clean">
+                    <label for="contact">Phone Number</label>
+                    <input type="tel" id="contact" class="input-clean" placeholder="e.g. 08012345678" minlength="11" maxlength="15" required />
+                </div>
+                <div class="form-group-clean">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="input-clean" style="height: 2.85rem; appearance: auto;" required>
+                        <option value="" disabled selected>Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.85rem;">
+                <div class="form-group-clean">
+                    <label for="dob">Date of Birth</label>
+                    <input type="date" id="dob" class="input-clean" required />
+                </div>
+                <div class="form-group-clean">
+                    <label for="state">State</label>
+                    <input type="text" id="state" class="input-clean" placeholder="e.g. Lagos" required minlength="3" maxlength="20" />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                <div class="form-group-clean">
+                    <label for="latitude">Latitude (Nigeria bounds)</label>
+                    <input type="number" id="latitude" class="input-clean" step="any" min="4.0" max="14.0" value="6.428" required />
+                </div>
+                <div class="form-group-clean">
+                    <label for="longitude">Longitude (Nigeria bounds)</label>
+                    <input type="number" id="longitude" class="input-clean" step="any" min="2.5" max="15.5" value="3.421" required />
+                </div>
+            </div>
+
+            <div class="form-group-clean">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="input-clean" placeholder="At least 8 chars, A-Z, 0-9, special char" required autocomplete="new-password" />
+            </div>
+
+            <div class="form-group-clean">
+                <label for="referrer-code">Referral Code (Optional)</label>
+                <input type="text" id="referrer-code" class="input-clean" style="font-family: monospace;" placeholder="e.g. AMARA39281" />
+            </div>
+
+            <button type="submit" class="btn-clean btn-clean--primary btn-clean--full" style="margin-top: 1.25rem;">
+                @await Html.PartialAsync("_AppIcon", "sparkle")
+                <span>Complete Registration</span>
+            </button>
+        </form>
+
+        <div class="auth-toggle" style="margin-top: 1.25rem;">
+            Already have an account? <a asp-controller="Account" asp-action="Login">Sign In</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Check if already logged in and redirect
+        if (localStorage.getItem("clean_connect_token")) {
+            window.location.href = '@Url.Action("Profile", "Account")';
+        }
+
+        // Try to fetch browser location to make form autocomplete friendly
+        window.addEventListener("load", () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    
+                    // Only apply if it falls inside Nigeria boundary rules
+                    if (lat >= 4.0 && lat <= 14.0 && lon >= 2.5 && lon <= 15.5) {
+                        document.getElementById("latitude").value = lat.toFixed(5);
+                        document.getElementById("longitude").value = lon.toFixed(5);
+                    }
+                }, (err) => {
+                    console.log("Geolocation permission denied, using default Lagos coordinates.");
+                });
+            }
+        });
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const errorBubble = document.getElementById("register-error");
+            const errorMessage = document.getElementById("error-message");
+            const submitBtn = e.target.querySelector("button[type='submit']");
+            const submitBtnText = submitBtn.querySelector("span");
+
+            const firstName = document.getElementById("first-name").value;
+            const lastName = document.getElementById("last-name").value;
+            const email = document.getElementById("email").value;
+            const contact = document.getElementById("contact").value;
+            const gender = document.getElementById("gender").value;
+            const dob = document.getElementById("dob").value;
+            const state = document.getElementById("state").value;
+            const latitude = parseFloat(document.getElementById("latitude").value);
+            const longitude = parseFloat(document.getElementById("longitude").value);
+            const password = document.getElementById("password").value;
+            const referrerCode = document.getElementById("referrer-code").value || null;
+
+            // Simple validation check for Age >= 15
+            const dobDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - dobDate.getFullYear();
+            const m = today.getMonth() - dobDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+                age--;
+            }
+            if (age < 15) {
+                errorMessage.innerText = "You must be at least 15 years old to register.";
+                errorBubble.style.display = "flex";
+                return;
+            }
+
+            errorBubble.style.display = "none";
+            submitBtn.disabled = true;
+            submitBtnText.innerText = "Creating account...";
+
+            try {
+                // Step 1: Register client profile
+                const registerClientResponse = await fetch("http://localhost:5022/api/Client/register-client", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        firstName,
+                        lastName,
+                        email,
+                        latitude,
+                        longitude,
+                        contact,
+                        gender,
+                        state,
+                        dob: new Date(dob).toISOString(),
+                        referrerCode
+                    })
+                });
+
+                if (!registerClientResponse.ok) {
+                    const clientData = await registerClientResponse.text();
+                    throw new Error(clientData || "Failed to register client profile details. Check inputs.");
+                }
+
+                // Step 2: Register Identity user login credentials
+                const registerIdentityResponse = await fetch("http://localhost:5022/api/v{version:apiVersion}/Account/register?version=1.0", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
+
+                if (!registerIdentityResponse.ok) {
+                    const identityData = await registerIdentityResponse.text();
+                    throw new Error(identityData || "Profile registered, but user auth account creation failed.");
+                }
+
+                // Step 3: Automatically log in the user
+                const loginResponse = await fetch("http://localhost:5022/api/v{version:apiVersion}/Account/Login?version=1.0", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const loginData = await loginResponse.json();
+
+                if (loginResponse.ok && loginData.token) {
+                    localStorage.setItem("clean_connect_token", loginData.token);
+                    localStorage.setItem("clean_connect_user_email", email);
+                    localStorage.setItem("clean_connect_user_id", loginData.userId || "");
+
+                    // Instantly retrieve and save their newly generated client details (e.g. referral code)
+                    try {
+                        const allClientsRes = await fetch("http://localhost:5022/api/Client/all-clients");
+                        if (allClientsRes.ok) {
+                            const clients = await allClientsRes.json();
+                            const client = clients.find(c => c.email && c.email.value && c.email.value.toLowerCase() === email.toLowerCase());
+                            if (client) {
+                                localStorage.setItem("clean_connect_client", JSON.stringify(client));
+                            }
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+
+                    // Success! Redirect to profile page
+                    window.location.href = '@Url.Action("Profile", "Account")';
+                } else {
+                    window.location.href = '@Url.Action("Login", "Account")';
+                }
+
+            } catch (error) {
+                console.error("Registration error:", error);
+                errorMessage.innerText = error.message || "A validation error occurred during registration. Verify coordinates are in Nigeria (Lat: 4.0-14.0, Lon: 2.5-15.5).";
+                errorBubble.style.display = "flex";
+                submitBtn.disabled = false;
+                submitBtnText.innerText = "Complete Registration";
+            }
+        }
+    </script>
+}

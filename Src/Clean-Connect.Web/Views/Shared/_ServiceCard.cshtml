@@ -1,0 +1,27 @@
+@model ServiceCardViewModel
+
+<article class="service-card reveal-lift tilt-card">
+    <div class="service-card__header">
+        <span class="icon-bubble icon-bubble--@Model.Tone">
+            @await Html.PartialAsync("_AppIcon", Model.Icon)
+        </span>
+        <span>@Model.Duration</span>
+    </div>
+    <h3>@Model.Name</h3>
+    <p>@Model.Description</p>
+    <ul class="clean-list">
+        @foreach (var feature in Model.Features)
+        {
+            <li>
+                @await Html.PartialAsync("_AppIcon", "check")
+                <span>@feature</span>
+            </li>
+        }
+    </ul>
+    <div class="service-card__footer">
+        <strong>@Model.Price</strong>
+        <a class="icon-link" asp-controller="Booking" asp-action="Index" aria-label="Book @Model.Name">
+            @await Html.PartialAsync("_AppIcon", "calendar")
+        </a>
+    </div>
+</article>

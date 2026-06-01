@@ -1,0 +1,74 @@
+@model TrackingPageViewModel
+@{
+    ViewData["Title"] = "Live Tracking";
+    ViewData["BodyClass"] = "tracking-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell page-hero__grid">
+        <div>
+            <p class="eyebrow">Live tracking</p>
+            <h1>Follow the cleaner, checklist, and completion status in real time.</h1>
+            <p>Designed for quick scanning on mobile while still giving operations teams the context they need.</p>
+        </div>
+        <div class="cleaner-card cleaner-card--hero">
+            <span class="avatar-token avatar-token--large">@Model.Cleaner.Initials</span>
+            <div>
+                <strong>@Model.Cleaner.Name</strong>
+                <small>@Model.Cleaner.Specialty</small>
+            </div>
+            <span class="rating-pill">@Model.Cleaner.Rating</span>
+        </div>
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell app-workspace tracking-workspace">
+        <div class="workspace-main">
+            <div class="route-map reveal-lift" aria-label="Cleaner route preview">
+                <div class="route-map__grid"></div>
+                <div class="route-path">
+                    <span class="route-pin route-pin--start"></span>
+                    <span class="route-line"></span>
+                    <span class="route-marker"></span>
+                    <span class="route-pin route-pin--end"></span>
+                </div>
+                <div class="eta-card">
+                    @await Html.PartialAsync("_AppIcon", "route")
+                    <span>
+                        <strong>@Model.Cleaner.ArrivalWindow</strong>
+                        <small>Estimated arrival</small>
+                    </span>
+                </div>
+            </div>
+
+            <div class="activity-stack activity-stack--wide">
+                @foreach (var update in Model.Updates)
+                {
+                    @await Html.PartialAsync("_ActivityItem", update)
+                }
+            </div>
+        </div>
+
+        <aside class="summary-panel">
+            <h2>Job timeline</h2>
+            <ol class="tracking-timeline">
+                @foreach (var step in Model.Steps)
+                {
+                    <li class="tracking-step tracking-step--@step.State">
+                        <span class="tracking-step__dot"></span>
+                        <span>
+                            <strong>@step.Label</strong>
+                            <small>@step.Detail</small>
+                        </span>
+                        <time>@step.Time</time>
+                    </li>
+                }
+            </ol>
+            <a class="btn-clean btn-clean--secondary btn-clean--full" asp-controller="Admin" asp-action="Index">
+                @await Html.PartialAsync("_AppIcon", "chart")
+                <span>View admin live feed</span>
+            </a>
+        </aside>
+    </div>
+</section>

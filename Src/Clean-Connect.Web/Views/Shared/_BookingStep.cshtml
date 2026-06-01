@@ -1,0 +1,14 @@
+@model BookingStepViewModel
+
+<li class="flow-step flow-step--@Model.State">
+    <span class="flow-step__dot">
+        @if (Model.State == "complete")
+        {
+            @await Html.PartialAsync("_AppIcon", "check")
+        }
+    </span>
+    <span>
+        <strong>@Model.Label</strong>
+        <small>@Model.Detail</small>
+    </span>
+</li>

@@ -1,0 +1,96 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Live Admin Dashboard";
+    ViewData["BodyClass"] = "admin-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell page-hero__grid">
+        <div>
+            <p class="eyebrow">Admin command center</p>
+            <h1>Real-time analytics, notifications, and operations activity.</h1>
+            <p>SignalR updates keep the dashboard alive while native canvas charts stay fast and dependency-light.</p>
+        </div>
+        <div class="connection-pill" id="adminConnectionStatus">
+            <span class="pulse-dot"></span>
+            <span>Connecting live feed</span>
+        </div>
+    </div>
+</section>
+
+<section class="page-section" data-admin-dashboard>
+    <div class="page-shell metrics-grid metrics-grid--admin">
+        @foreach (var metric in Model.Metrics)
+        {
+            @await Html.PartialAsync("_MetricCard", metric)
+        }
+    </div>
+
+    <div class="page-shell dashboard-grid">
+        <article class="chart-panel reveal-lift">
+            <div class="panel-heading">
+                <span>
+                    <p class="eyebrow">Revenue</p>
+                    <h2>Daily revenue</h2>
+                </span>
+                <strong>₦2.84m</strong>
+            </div>
+            <canvas data-chart="revenue" width="720" height="360" aria-label="Revenue trend chart"></canvas>
+        </article>
+
+        <article class="chart-panel reveal-lift">
+            <div class="panel-heading">
+                <span>
+                    <p class="eyebrow">Demand</p>
+                    <h2>Bookings by day</h2>
+                </span>
+                <strong>186 active</strong>
+            </div>
+            <canvas data-chart="bookings" width="720" height="360" aria-label="Booking trend chart"></canvas>
+        </article>
+
+        <article class="chart-panel chart-panel--compact reveal-lift">
+            <div class="panel-heading">
+                <span>
+                    <p class="eyebrow">Mix</p>
+                    <h2>Service share</h2>
+                </span>
+            </div>
+            <canvas data-chart="mix" width="420" height="360" aria-label="Service mix chart"></canvas>
+        </article>
+
+        <article class="feed-panel reveal-lift">
+            <div class="panel-heading">
+                <span>
+                    <p class="eyebrow">Activity</p>
+                    <h2>Live operations</h2>
+                </span>
+            </div>
+            <div class="activity-stack" id="liveActivityFeed">
+                @foreach (var activity in Model.Activities)
+                {
+                    @await Html.PartialAsync("_ActivityItem", activity)
+                }
+            </div>
+        </article>
+
+        <article class="feed-panel reveal-lift">
+            <div class="panel-heading">
+                <span>
+                    <p class="eyebrow">Notifications</p>
+                    <h2>Admin alerts</h2>
+                </span>
+            </div>
+            <div class="notification-stack" id="liveNotifications">
+                @foreach (var notification in Model.Notifications)
+                {
+                    <article class="notification-item notification-item--@notification.Tone">
+                        <strong>@notification.Title</strong>
+                        <span>@notification.Message</span>
+                        <time>@notification.Time</time>
+                    </article>
+                }
+            </div>
+        </article>
+    </div>
+</section>

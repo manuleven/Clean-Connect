@@ -123,9 +123,11 @@ namespace Clean_Connect.Domain.Entities
 
         public void MarkAsCompleted()
         {
-            if (BookingStatus != BookingStatus.InProgress && BookingStatus != BookingStatus.MarkAsPaid)
+            if (BookingStatus != BookingStatus.AwaitingClientConfirmation &&
+                BookingStatus != BookingStatus.InProgress &&
+                BookingStatus != BookingStatus.MarkAsPaid)
             {
-                throw new InvalidOperationException("Only paid or in-progress bookings can be marked as completed.");
+                throw new InvalidOperationException("Only paid, in-progress, or awaiting confirmation bookings can be marked as completed.");
             }
             BookingStatus = BookingStatus.Completed;
         }

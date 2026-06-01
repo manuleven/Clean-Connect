@@ -204,6 +204,11 @@ namespace Clean_Connect.Persistence.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<int>("SuccessfulReferralCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("ReferralCode")
@@ -289,6 +294,9 @@ namespace Clean_Connect.Persistence.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DatePaidOut")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("DateReleased")
                         .HasColumnType("datetime2");
 
@@ -300,6 +308,10 @@ namespace Clean_Connect.Persistence.Migrations
 
                     b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PaystackTransferCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Status")
                         .IsRequired()

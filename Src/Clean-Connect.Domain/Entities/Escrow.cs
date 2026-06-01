@@ -31,6 +31,8 @@ namespace Clean_Connect.Domain.Entities
         public decimal Amount { get; private set; }
         public EscrowStatus Status { get; private set; }
         public DateTime? DateReleased { get; private set; }
+        public string? PaystackTransferCode { get; private set; }
+        public DateTime? DatePaidOut { get; private set; }
 
         public static Escrow Create(Guid bookingId, Guid paymentId, Guid workerId, decimal amount, string? createdBy = null)
         {
@@ -47,6 +49,23 @@ namespace Clean_Connect.Domain.Entities
 
             Status = EscrowStatus.Released;
             DateReleased = DateTime.UtcNow;
+            UpdateMetadata(modifiedBy);
+        }
+
+        public void MarkPaidOut(string paystackTransferCode, string? modifiedBy = null)
+        {
+            if (Status == EscrowStatus.PaidOut)
+                throw new InvalidOperationException("Escrow has already been paid out.");
+
+            if (Status != EscrowStatus.Released)
+                throw new InvalidOperationException("Escrow must be released before it can be paid out.");
+
+            if (string.IsNullOrWhiteSpace(paystackTransferCode))
+                throw new ArgumentException("Paystack transfer code is required.", nameof(paystackTransferCode));
+
+            Status = EscrowStatus.PaidOut;
+            PaystackTransferCode = paystackTransferCode.Trim();
+            DatePaidOut = DateTime.UtcNow;
             UpdateMetadata(modifiedBy);
         }
 

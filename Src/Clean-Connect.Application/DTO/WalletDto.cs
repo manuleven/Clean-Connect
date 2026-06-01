@@ -10,5 +10,7 @@ namespace Clean_Connect.Application.DTO
         Guid WorkerId,
         decimal Amount,
         EscrowStatus Status,
-        DateTime? DateReleased);
+        DateTime? DateReleased,
+        string? PaystackTransferCode,
+        DateTime? DatePaidOut);
 }

@@ -1,0 +1,91 @@
+@model ClientPortalViewModel
+@{
+    ViewData["Title"] = "Clients";
+    ViewData["BodyClass"] = "clients-page";
+}
+
+<section class="page-hero page-hero--compact">
+    <div class="page-shell">
+        <p class="eyebrow">Client management</p>
+        <h1>Manage customers, referral codes, bookings, completion, and ratings.</h1>
+        <p>Client-facing workflows deserve a clear frontend because they control booking confirmation, completion approval, and worker ratings.</p>
+    </div>
+</section>
+
+<section class="page-section page-section--tight">
+    <div class="page-shell metrics-grid">
+        @foreach (var metric in Model.Metrics)
+        {
+            @await Html.PartialAsync("_MetricCard", metric)
+        }
+    </div>
+</section>
+
+<section class="page-section">
+    <div class="page-shell app-workspace ops-workspace">
+        <div class="workspace-main">
+            <div class="section-heading section-heading--left">
+                <p class="eyebrow">Directory</p>
+                <h2>Client records and referral state.</h2>
+            </div>
+            <div class="resource-list">
+                @foreach (var client in Model.Clients)
+                {
+                    <article class="resource-row">
+                        <span class="avatar-token">@client.Initials</span>
+                        <span>
+                            <strong>@client.Name</strong>
+                            <small>@client.Email · @client.Location</small>
+                        </span>
+                        <span class="soft-badge">@client.ReferralCode</span>
+                        <span class="status-pill">@client.Status</span>
+                    </article>
+                }
+            </div>
+        </div>
+
+        <aside class="summary-panel">
+            <h2>Client actions</h2>
+            <div class="action-stack">
+                <button class="action-button" type="button">
+                    @await Html.PartialAsync("_AppIcon", "check")
+                    <span>
+                        <strong>Mark booking complete</strong>
+                        <small>Confirm quality and release escrow.</small>
+                    </span>
+                </button>
+                <button class="action-button" type="button">
+                    @await Html.PartialAsync("_AppIcon", "sparkle")
+                    <span>
+                        <strong>Rate worker</strong>
+                        <small>Capture review and quality score.</small>
+                    </span>
+                </button>
+                <button class="action-button" type="button">
+                    @await Html.PartialAsync("_AppIcon", "calendar")
+                    <span>
+                        <strong>View bookings</strong>
+                        <small>Open client booking history.</small>
+                    </span>
+                </button>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<section class="page-section page-section--soft">
+    <div class="page-shell operations-panel">
+        <div class="panel-heading">
+            <span>
+                <p class="eyebrow">Recent client events</p>
+                <h2>Customer activity</h2>
+            </span>
+        </div>
+        <div class="activity-stack activity-stack--wide">
+            @foreach (var item in Model.RecentRequests)
+            {
+                @await Html.PartialAsync("_ActivityItem", item)
+            }
+        </div>
+    </div>
+</section>

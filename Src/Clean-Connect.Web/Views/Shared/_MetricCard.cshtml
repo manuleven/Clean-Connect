@@ -1,0 +1,12 @@
+@model MetricCardViewModel
+
+<article class="metric-card reveal-lift" data-dashboard-metric="@Model.Label">
+    <div class="metric-card__top">
+        <span class="icon-bubble icon-bubble--@Model.Tone">
+            @await Html.PartialAsync("_AppIcon", Model.Icon)
+        </span>
+        <span class="metric-card__change metric-card__change--@Model.Tone" data-dashboard-metric-change>@Model.Change</span>
+    </div>
+    <p>@Model.Label</p>
+    <strong data-dashboard-metric-value>@Model.Value</strong>
+</article>

@@ -35,6 +35,17 @@ namespace Clean_Connect.Domain.Entities
             UpdateMetadata(modifiedBy);
         }
 
+        public void Debit(decimal amount, string? modifiedBy = null)
+        {
+            ValidateAmount(amount);
+
+            if (Balance < amount)
+                throw new InvalidOperationException("Wallet balance is insufficient for this payout.");
+
+            Balance -= amount;
+            UpdateMetadata(modifiedBy);
+        }
+
         private static void ValidateWorkerId(Guid workerId)
         {
             if (workerId == Guid.Empty)

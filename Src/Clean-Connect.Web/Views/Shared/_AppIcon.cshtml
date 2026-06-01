@@ -1,0 +1,45 @@
+@model string
+@{
+    var icon = (Model ?? "sparkle").ToLowerInvariant();
+}
+<span class="app-icon" aria-hidden="true">
+@switch (icon)
+{
+    case "calendar":
+        <svg viewBox="0 0 24 24"><path d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/><path d="M8 13h3M8 17h6"/></svg>
+        break;
+    case "card":
+        <svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z"/><path d="M4 10h16M7 15h4"/></svg>
+        break;
+    case "route":
+        <svg viewBox="0 0 24 24"><path d="M6 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM18 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M8.5 15.5h4A3.5 3.5 0 0 0 16 12V9"/></svg>
+        break;
+    case "chart":
+        <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 16v-5M12 16V8M16 16v-8"/></svg>
+        break;
+    case "bell":
+        <svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>
+        break;
+    case "shield":
+        <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg>
+        break;
+    case "home":
+        <svg viewBox="0 0 24 24"><path d="m3 11 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+        break;
+    case "brush":
+        <svg viewBox="0 0 24 24"><path d="M15 4 6 13"/><path d="m14 5 5 5"/><path d="M5 14c-1 1-1 4-1 6 2 0 5 0 6-1l7-7-5-5-7 7Z"/></svg>
+        break;
+    case "office":
+        <svg viewBox="0 0 24 24"><path d="M4 20h16M6 20V5h8v15M14 10h4v10"/><path d="M9 8h2M9 12h2M9 16h2"/></svg>
+        break;
+    case "user":
+        <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+        break;
+    case "check":
+        <svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>
+        break;
+    default:
+        <svg viewBox="0 0 24 24"><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/><path d="m7 7 2 2M15 15l2 2M17 7l-2 2M9 15l-2 2"/></svg>
+        break;
+}
+</span>

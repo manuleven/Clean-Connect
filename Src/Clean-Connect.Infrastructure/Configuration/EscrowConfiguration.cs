@@ -32,6 +32,11 @@ namespace Clean_Connect.Infrastructure.Configuration
 
             builder.Property(x => x.DateReleased);
 
+            builder.Property(x => x.PaystackTransferCode)
+                .HasMaxLength(100);
+
+            builder.Property(x => x.DatePaidOut);
+
             builder.HasIndex(x => x.BookingId)
                 .IsUnique();
 

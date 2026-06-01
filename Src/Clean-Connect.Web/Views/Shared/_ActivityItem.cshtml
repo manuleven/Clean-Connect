@@ -1,0 +1,12 @@
+@model ActivityItemViewModel
+
+<article class="activity-item" data-activity-item>
+    <span class="icon-bubble icon-bubble--@Model.Tone">
+        @await Html.PartialAsync("_AppIcon", Model.Icon)
+    </span>
+    <span>
+        <strong>@Model.Title</strong>
+        <small>@Model.Description</small>
+    </span>
+    <time>@Model.Time</time>
+</article>

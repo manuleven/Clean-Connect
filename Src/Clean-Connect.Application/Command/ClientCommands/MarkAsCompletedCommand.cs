@@ -2,6 +2,8 @@ using Azure.Core;
 using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Command.WorkerCommands;
 using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Domain.Entities;
+using Clean_Connect.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -62,7 +64,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
             if (client != null && client.ReferredById.HasValue)
             {
                 // Check if this is the first completed booking for this client
-                var completedBookingsCount = client.Bookings.Count(b => b.BookingStatus == Domain.Enums.BookingStatus.Completed);
+                var completedBookingsCount = client.Bookings.Count(b => b.BookingStatus == BookingStatus.Completed);
                 if (completedBookingsCount == 1) // It's 1 because we just called booking.MarkAsCompleted() locally? 
                                                 // Actually, the database hasn't been updated yet.
                 {

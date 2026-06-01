@@ -4,6 +4,7 @@ namespace Clean_Connect.Domain.Enums
     {
         Held,
         Released,
+        PaidOut,
         Refunded,
         Disputed
     }

@@ -33,9 +33,9 @@ namespace Clean_Connect.Application.Command.Services
                 logger.LogWarning("Booking operation failed. Client {ClientId} is not assigned to booking {BookingId}", clientId, bookingId);
                 throw new UnauthorizedAccessException($"Worker with ID {clientId} is not assigned to booking {bookingId}.");
             }
-            if (booking.BookingStatus != BookingStatus.InProgress && booking.BookingStatus != BookingStatus.MarkAsPaid)
+            if (booking.BookingStatus != BookingStatus.AwaitingClientConfirmation)
             {
-                logger.LogWarning("Booking operation failed. Booking {BookingId} is not in Progress ", bookingId);
+                logger.LogWarning("Booking operation failed. Booking {BookingId} is not in Valid transition state ", bookingId);
                 throw new InvalidOperationException($"Booking with ID {bookingId} must be paid or in progress before it can be marked as completed.");
             }
             if (booking.PaymentStatus != PaymentStatus.Successful)
