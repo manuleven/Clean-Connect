@@ -1,117 +1,121 @@
+﻿@using Clean_Connect.Application.DTO
+@model LoginDto
+
+
 @{
-    ViewData["Title"] = "Sign In";
-    ViewData["BodyClass"] = "auth-page";
+    ViewData["Title"] = "Account Verified";
+    ViewData["PortalRole"] = "Guest";
+    ViewData["BodyClass"] = "auth-page-clean";
 }
 
-<div class="auth-wrapper">
-    <div class="ambient-glow ambient-glow--top-left"></div>
-    <div class="ambient-glow ambient-glow--bottom-right"></div>
+<section class="cc-page">
+    <div class="container">
+        <div class="cc-grid cc-grid-2">
 
-    <div class="auth-card reveal-lift">
-        <div class="auth-card__header">
-            <span class="brand-mark" style="margin: 0 auto 1rem; width: 3.5rem; height: 3.5rem; font-size: 1.5rem;">
-                @await Html.PartialAsync("_AppIcon", "sparkle")
-            </span>
-            <h2>Welcome Back</h2>
-            <p>Enter your credentials to manage your cleaning dashboard</p>
-        </div>
+            <!-- Left Side -->
+            <div class="cc-card">
+                <img class="cc-card-img"
+                     src="~/monoline/assets/img/team-clean.jfif"
+                     alt="Professional cleaning service" />
 
-        <div id="login-error" class="coupon-feedback-bubble coupon-feedback-bubble--error" style="margin-bottom: 1.5rem; width: 100%; display: none;">
-            @await Html.PartialAsync("_AppIcon", "shield")
-            <span id="error-message">Invalid email or password.</span>
-        </div>
+                <div class="cc-card-body">
+                    <h1>Welcome Back</h1>
 
-        <form id="login-form" onsubmit="handleLogin(event)">
-            <div class="form-group-clean">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" class="input-clean" placeholder="e.g. name@example.com" required autocomplete="username" />
+                    <p class="cc-muted">
+                        Sign in to access your Clean Connect account, manage bookings,
+                        track service requests, and connect with trusted cleaning professionals.
+                    </p>
+
+                    <div class="mt-4">
+                        <div class="mb-2">
+                            ✓ Trusted & Verified Cleaners
+                        </div>
+
+                        <div class="mb-2">
+                            ✓ Easy Booking & Service Tracking
+                        </div>
+
+                        <div class="mb-2">
+                            ✓ Secure Payments & Reliable Support
+                        </div>
+
+                        <div>
+                            ✓ Professional Home & Office Cleaning
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group-clean">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="input-clean" placeholder="••••••••" required autocomplete="current-password" />
+            <!-- Right Side -->
+            <div class="cc-card cc-card-body">
+                <div class="alert" data-form-alert hidden></div>
+
+                <form asp-action="Login" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <h2 class="mb-4">Sign In</h2>
+
+                    <div class="cc-form-grid">
+
+                        <div class="cc-field full">
+                            <label asp-for="Email" placeholder="Enter your email">Email Address</label>
+                            <input id="email"
+                                   name="email"
+                                   type="email"
+                                   autocomplete="username"
+                                   required />
+
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                                Email address is required.
+                            </span>
+                        </div>
+
+                        <div class="cc-field full">
+                            <label asp-for="Password" placeholder="Enter your password">Password</label>
+                            <input id="password"
+                                   name="password"
+                                   type="password"
+                                   autocomplete="current-password"
+                                   required />
+
+                            <span class="cc-field-error">
+                                Password is required.
+                            </span>
+                        </div>
+
+                        <div class="full d-flex justify-content-between align-items-center">
+                            <label asp-for="RememberMe">
+                                <input asp-for="RememberMe" name="rememberMe" type="checkbox" />
+                                Remember Me
+                            </label>
+
+                            <a href="/Forgot-Password">
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <div class="cc-actions mt-4">
+                        <button class="btn cc-btn-primary btn-lg w-100"
+                                type="submit">
+                            Sign In
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <span class="cc-muted">
+                            Don't have an account?
+                        </span>
+
+                        <a asp-controller="Account" asp-action="Register">
+                            Create Account
+                        </a>
+                    </div>
+
+                </form>
             </div>
 
-            <button type="submit" class="btn-clean btn-clean--primary btn-clean--full" style="margin-top: 1.5rem;">
-                @await Html.PartialAsync("_AppIcon", "shield")
-                <span>Sign In Securely</span>
-            </button>
-        </form>
-
-        <div class="auth-toggle">
-            Don't have an account? <a asp-controller="Account" asp-action="Register">Create Account</a>
         </div>
     </div>
-</div>
-
-@section Scripts {
-    <script>
-        // Check if already logged in and redirect to profile
-        if (localStorage.getItem("clean_connect_token")) {
-            window.location.href = '@Url.Action("Profile", "Account")';
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            const errorBubble = document.getElementById("login-error");
-            const errorMessage = document.getElementById("error-message");
-            const submitBtn = e.target.querySelector("button[type='submit']");
-            const submitBtnText = submitBtn.querySelector("span");
-
-            errorBubble.style.display = "none";
-            submitBtn.disabled = true;
-            const originalText = submitBtnText.innerText;
-            submitBtnText.innerText = "Authenticating...";
-
-            try {
-                const response = await fetch("http://localhost:5022/api/v1/Account/Login", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || "Failed to authenticate. Please check your credentials.");
-                }
-
-                // If authentication is successful, we store user session details in localStorage
-                if (data.token) {
-                    localStorage.setItem("clean_connect_token", data.token);
-                    localStorage.setItem("clean_connect_user_email", email);
-                    localStorage.setItem("clean_connect_user_id", data.userId || "");
-                    
-                    // Fetch client profile details if they exist to store them
-                    try {
-                        const clientRes = await fetch("http://localhost:5022/api/Client/all-clients");
-                        if (clientRes.ok) {
-                            const clients = await clientRes.json();
-                            const matchedClient = clients.find(c => c.email && c.email.value && c.email.value.toLowerCase() === email.toLowerCase());
-                            if (matchedClient) {
-                                localStorage.setItem("clean_connect_client", JSON.stringify(matchedClient));
-                            }
-                        }
-                    } catch (err) {
-                        console.error("Could not fetch client record on login:", err);
-                    }
-
-                    // Redirect to client profile
-                    window.location.href = '@Url.Action("Profile", "Account")';
-                } else {
-                    throw new Error("Invalid token response from server.");
-                }
-            } catch (error) {
-                console.error("Login error:", error);
-                errorMessage.innerText = error.message || "An unexpected error occurred during sign in.";
-                errorBubble.style.display = "flex";
-                submitBtn.disabled = false;
-                submitBtnText.innerText = originalText;
-            }
-        }
-    </script>
-}
+</section>

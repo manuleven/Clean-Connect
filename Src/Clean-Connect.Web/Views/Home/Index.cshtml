@@ -1,78 +1,115 @@
-@model HomePageViewModel
+@model PublicHomeViewModel
 @{
-    ViewData["Title"] = "Premium Cleaning Operations";
-    ViewData["BodyClass"] = "home-page";
+    ViewData["Title"] = "Home";
+    ViewData["PortalRole"] = "Guest";
+    ViewData["BodyClass"] = "public-home";
 }
 
-<section class="hero-band" style="--hero-image: url('@Url.Content("~/img/cleaning-suite.png")')">
-    <div class="hero-band__scrim"></div>
-    <div class="page-shell hero-band__content">
-        <p class="eyebrow">Cleaning service operating system</p>
+<section class="cc-hero" style="--cc-hero-image: url('/monoline/assets/img/bg/home-bg.jpg')">
+    <div class="container">
         <h1>Clean Connect</h1>
-        <p class="hero-copy">Book verified cleaners, protect every payment in escrow, and track the work from dispatch to completion with one calm, polished experience.</p>
-        <div class="hero-actions">
-            <a class="btn-clean btn-clean--primary btn-clean--large" asp-controller="Booking" asp-action="Index">
-                @await Html.PartialAsync("_AppIcon", "calendar")
-                <span>Start a booking</span>
-            </a>
-            <a class="btn-clean btn-clean--ghost btn-clean--large" asp-controller="Tracking" asp-action="Index">
-                @await Html.PartialAsync("_AppIcon", "route")
-                <span>Track a cleaner</span>
-            </a>
-        </div>
-        <div class="hero-proof" aria-label="Clean Connect service highlights">
-            <span>Verified cleaners</span>
-            <span>Escrow payments</span>
-            <span>Live job tracking</span>
+        <p>Book verified cleaners, fund jobs through protected escrow, track every appointment, and manage service quality from one modern cleaning platform.</p>
+        <div class="cc-actions mt-4">
+            <a class="btn cc-btn-primary btn-lg" asp-controller="Account" asp-action="Register">Book a cleaner</a>
+            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register" asp-route-role="Worker">Work with us</a>
         </div>
     </div>
 </section>
 
-<section class="page-section page-section--tight">
-    <div class="page-shell metrics-grid">
-        @foreach (var metric in Model.Metrics)
-        {
-            @await Html.PartialAsync("_MetricCard", metric)
-        }
-    </div>
-</section>
-
-<section class="page-section">
-    <div class="page-shell section-heading">
-        <p class="eyebrow">Service catalog</p>
-        <h2>Premium cleaning that feels simple to book and easy to trust.</h2>
-        <p>Reusable service cards, consistent tokens, and clear pricing keep the system scalable as your service catalog grows.</p>
-    </div>
-    <div class="page-shell service-grid">
-        @foreach (var service in Model.Services)
-        {
-            @await Html.PartialAsync("_ServiceCard", service)
-        }
-    </div>
-</section>
-
-<section class="page-section page-section--soft">
-    <div class="page-shell split-layout">
-        <div class="section-heading section-heading--left">
-            <p class="eyebrow">Operations flow</p>
-            <h2>Every booking has a visible path from request to payout.</h2>
-            <p>Customers see progress. Cleaners see expectations. Admins see bottlenecks before they become support tickets.</p>
-            <a class="btn-clean btn-clean--secondary" asp-controller="Admin" asp-action="Index">
-                @await Html.PartialAsync("_AppIcon", "chart")
-                <span>Open dashboard</span>
-            </a>
+<section id="services" class="cc-page">
+    <div class="container">
+        <div class="cc-section-title">
+            <h2>Services for homes and workplaces</h2>
+            <p>Choose a package, schedule a time, match with a verified worker, and release payment only after the job is confirmed.</p>
         </div>
-        <div class="operations-panel tilt-card reveal-lift">
-            <div class="operations-panel__header">
-                <span>Today</span>
-                <strong>Live activity</strong>
+        <div class="cc-grid cc-grid-3">
+            @foreach (var service in Model.Services)
+            {
+                <article class="cc-card">
+                    <img class="cc-card-img" src="@service.Image" alt="@service.Name cleaning service" />
+                    <div class="cc-card-body">
+                        <h3>@service.Name</h3>
+                        <p class="cc-muted">@service.Summary</p>
+                        <strong>NGN @service.Amount.ToString("N0")</strong>
+                        <span class="cc-status ms-2">@service.Duration</span>
+                        <ul class="mt-3">
+                            @foreach (var item in service.Includes)
+                            {
+                                <li>@item</li>
+                            }
+                        </ul>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="cc-band">
+    <div class="container">
+        <div class="cc-section-title">
+            <h2>From request to payout</h2>
+            <p>Both sides get a clear workflow: clients see price, progress, and quality; workers see jobs, status, and earnings.</p>
+        </div>
+        <div class="cc-grid cc-grid-3">
+            <div class="cc-card cc-card-body">
+                <span class="cc-metric-icon cc-tone-green"><i class="fa fa-calendar-check-o"></i></span>
+                <h3 class="mt-3">Schedule</h3>
+                <p class="cc-muted">Clients choose service, location, date, and time range using backend-ready booking fields.</p>
             </div>
-            <div class="activity-stack">
-                @foreach (var activity in Model.RecentActivity)
-                {
-                    @await Html.PartialAsync("_ActivityItem", activity)
-                }
+            <div class="cc-card cc-card-body">
+                <span class="cc-metric-icon cc-tone-blue"><i class="fa fa-user-circle"></i></span>
+                <h3 class="mt-3">Match</h3>
+                <p class="cc-muted">Workers receive nearby requests, accept or reject, and manage job progress from their portal.</p>
             </div>
+            <div class="cc-card cc-card-body">
+                <span class="cc-metric-icon cc-tone-orange"><i class="fa fa-lock"></i></span>
+                <h3 class="mt-3">Protect</h3>
+                <p class="cc-muted">Payments move through escrow and payout states, giving both roles confidence in every job.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cc-page">
+    <div class="container">
+        <div class="cc-section-title">
+            <h2>Verified workers near you</h2>
+            <p>Cleaner profiles, service category, availability, completed jobs, and ratings are visible before a booking is confirmed.</p>
+        </div>
+        <div class="cc-grid cc-grid-3">
+            @foreach (var worker in Model.FeaturedWorkers)
+            {
+                <article class="cc-card">
+                    <img class="cc-card-img" src="@worker.Image" alt="@worker.Name" />
+                    <div class="cc-card-body">
+                        <h3>@worker.Name</h3>
+                        <p class="cc-muted">@worker.Service · @worker.Location</p>
+                        <span class="cc-status success">@worker.Rating.ToString("0.00") rating</span>
+                        <p class="mt-3 mb-0">@worker.CompletedJobs completed jobs · @worker.Availability</p>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section id="reviews" class="cc-band">
+    <div class="container">
+        <div class="cc-section-title">
+            <h2>People trust the workflow</h2>
+            <p>Realistic states for reviews, escrow, notifications, and job completion are represented in the frontend from day one.</p>
+        </div>
+        <div class="cc-grid cc-grid-3">
+            @foreach (var review in Model.Reviews)
+            {
+                <article class="cc-card cc-card-body">
+                    <span class="cc-status success">@review.Rating stars</span>
+                    <h3 class="mt-3">@review.Author</h3>
+                    <p class="cc-muted">@review.Subject · @review.Date</p>
+                    <p>@review.Comment</p>
+                </article>
+            }
         </div>
     </div>
 </section>

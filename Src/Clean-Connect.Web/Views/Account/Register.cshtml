@@ -1,250 +1,108 @@
 @{
+    var requestedRole = Context.Request.Query["role"].ToString();
+
+    var defaultRole = string.Equals(requestedRole, "Worker", StringComparison.OrdinalIgnoreCase)
+        ? "Worker"
+        : "Client";
+
     ViewData["Title"] = "Create Account";
+    ViewData["PortalRole"] = "Guest";
     ViewData["BodyClass"] = "auth-page";
 }
 
-<div class="auth-wrapper" style="padding: 1.5rem 1rem;">
-    <div class="ambient-glow ambient-glow--top-left"></div>
-    <div class="ambient-glow ambient-glow--bottom-right"></div>
+<section class="cc-page">
+    <div class="container">
+        <div class="cc-grid cc-grid-2">
 
-    <div class="auth-card reveal-lift" style="max-width: 600px; padding: 2rem 2.2rem;">
-        <div class="auth-card__header" style="margin-bottom: 1.5rem;">
-            <span class="brand-mark" style="margin: 0 auto 0.75rem; width: 3.2rem; height: 3.2rem; font-size: 1.3rem;">
-                @await Html.PartialAsync("_AppIcon", "sparkle")
-            </span>
-            <h2>Premium Sign Up</h2>
-            <p>Create your Clean Connect account to book, secure and track premium cleaning jobs.</p>
-        </div>
+            <div class="cc-card">
+                <img class="cc-card-img"
+                     src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80"
+                     alt="Professional cleaning team smiling" />
 
-        <div id="register-error" class="coupon-feedback-bubble coupon-feedback-bubble--error" style="margin-bottom: 1.25rem; width: 100%; display: none;">
-            @await Html.PartialAsync("_AppIcon", "shield")
-            <span id="error-message">Failed to create account.</span>
-        </div>
+                <div class="cc-card-body">
+                    <h1>Let’s get you started</h1>
 
-        <form id="register-form" onsubmit="handleRegister(event)">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
-                <div class="form-group-clean">
-                    <label for="first-name">First Name</label>
-                    <input type="text" id="first-name" class="input-clean" placeholder="e.g. Amara" required />
-                </div>
-                <div class="form-group-clean">
-                    <label for="last-name">Last Name</label>
-                    <input type="text" id="last-name" class="input-clean" placeholder="e.g. Okafor" required />
-                </div>
-            </div>
+                    <p class="cc-muted">
+                        Whether you are here to look after your space or find your next flexible gig, we’ve got you covered. Choose your account type below to begin.
+                    </p>
 
-            <div class="form-group-clean">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" class="input-clean" placeholder="name@example.com" required autocomplete="email" />
-            </div>
+                    <div class="cc-list mt-4">
 
-            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.85rem;">
-                <div class="form-group-clean">
-                    <label for="contact">Phone Number</label>
-                    <input type="tel" id="contact" class="input-clean" placeholder="e.g. 08012345678" minlength="11" maxlength="15" required />
-                </div>
-                <div class="form-group-clean">
-                    <label for="gender">Gender</label>
-                    <select id="gender" class="input-clean" style="height: 2.85rem; appearance: auto;" required>
-                        <option value="" disabled selected>Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                    </select>
+                        <div class="cc-list-item">
+                            <span class="cc-metric-icon cc-tone-green">
+                                <i class="fa fa-home"></i>
+                            </span>
+                            <div>
+                                <strong>I want to book a service</strong>
+                                <p class="cc-muted mb-0">
+                                    Find trusted professionals, schedule cleanings effortlessly, and manage your payments securely in one place.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="cc-list-item">
+                            <span class="cc-metric-icon cc-tone-blue">
+                                <i class="fa fa-briefcase"></i>
+                            </span>
+                            <div>
+                                <strong>I want to earn as a provider</strong>
+                                <p class="cc-muted mb-0">
+                                    Set your own schedule, claim open cleaning jobs in your area, and watch your earnings grow.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0.85rem;">
-                <div class="form-group-clean">
-                    <label for="dob">Date of Birth</label>
-                    <input type="date" id="dob" class="input-clean" required />
-                </div>
-                <div class="form-group-clean">
-                    <label for="state">State</label>
-                    <input type="text" id="state" class="input-clean" placeholder="e.g. Lagos" required minlength="3" maxlength="20" />
-                </div>
+            <div class="cc-card cc-card-body">
+
+                <div class="alert" data-form-alert hidden></div>
+
+                <form asp-action="Register" method="post">
+
+                    <div class="cc-form-grid">
+
+                        <div class="cc-field full">
+                            <label for="role">I am registering as a...</label>
+                            <select id="role" name="role" required>
+                                <option value="Client" selected="@(defaultRole == "Client")">Client (Looking for cleaning services)</option>
+                                <option value="Worker" selected="@(defaultRole == "Worker")">Worker (Looking for cleaning jobs)</option>
+                            </select>
+                            <span class="cc-field-error">Please choose how you'd like to use the platform.</span>
+                        </div>
+
+                        <div class="cc-field full">
+                            <label for="email">Email Address</label>
+                            <input id="email" name="email" type="email" placeholder="e.g., alex@example.com" autocomplete="email" required />
+                            <span class="cc-field-error">Please enter a valid email address.</span>
+                        </div>
+
+                        <div class="cc-field full">
+                            <label for="password">Password</label>
+                            <input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required />
+                            <span class="cc-field-error">Please choose a password.</span>
+                        </div>
+
+                    </div>
+
+                    <div class="cc-actions mt-4">
+                        <button class="btn cc-btn-primary btn-lg" type="submit">
+                            Create my account
+                        </button>
+
+                        <a class="btn btn-outline-secondary btn-lg"
+                           asp-controller="Account"
+                           asp-action="Login">
+                            Sign in instead
+                        </a>
+                    </div>
+
+                </form>
+
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
-                <div class="form-group-clean">
-                    <label for="latitude">Latitude (Nigeria bounds)</label>
-                    <input type="number" id="latitude" class="input-clean" step="any" min="4.0" max="14.0" value="6.428" required />
-                </div>
-                <div class="form-group-clean">
-                    <label for="longitude">Longitude (Nigeria bounds)</label>
-                    <input type="number" id="longitude" class="input-clean" step="any" min="2.5" max="15.5" value="3.421" required />
-                </div>
-            </div>
-
-            <div class="form-group-clean">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="input-clean" placeholder="At least 8 chars, A-Z, 0-9, special char" required autocomplete="new-password" />
-            </div>
-
-            <div class="form-group-clean">
-                <label for="referrer-code">Referral Code (Optional)</label>
-                <input type="text" id="referrer-code" class="input-clean" style="font-family: monospace;" placeholder="e.g. AMARA39281" />
-            </div>
-
-            <button type="submit" class="btn-clean btn-clean--primary btn-clean--full" style="margin-top: 1.25rem;">
-                @await Html.PartialAsync("_AppIcon", "sparkle")
-                <span>Complete Registration</span>
-            </button>
-        </form>
-
-        <div class="auth-toggle" style="margin-top: 1.25rem;">
-            Already have an account? <a asp-controller="Account" asp-action="Login">Sign In</a>
         </div>
     </div>
-</div>
-
-@section Scripts {
-    <script>
-        // Check if already logged in and redirect
-        if (localStorage.getItem("clean_connect_token")) {
-            window.location.href = '@Url.Action("Profile", "Account")';
-        }
-
-        // Try to fetch browser location to make form autocomplete friendly
-        window.addEventListener("load", () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition((pos) => {
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    
-                    // Only apply if it falls inside Nigeria boundary rules
-                    if (lat >= 4.0 && lat <= 14.0 && lon >= 2.5 && lon <= 15.5) {
-                        document.getElementById("latitude").value = lat.toFixed(5);
-                        document.getElementById("longitude").value = lon.toFixed(5);
-                    }
-                }, (err) => {
-                    console.log("Geolocation permission denied, using default Lagos coordinates.");
-                });
-            }
-        });
-
-        async function handleRegister(e) {
-            e.preventDefault();
-            const errorBubble = document.getElementById("register-error");
-            const errorMessage = document.getElementById("error-message");
-            const submitBtn = e.target.querySelector("button[type='submit']");
-            const submitBtnText = submitBtn.querySelector("span");
-
-            const firstName = document.getElementById("first-name").value;
-            const lastName = document.getElementById("last-name").value;
-            const email = document.getElementById("email").value;
-            const contact = document.getElementById("contact").value;
-            const gender = document.getElementById("gender").value;
-            const dob = document.getElementById("dob").value;
-            const state = document.getElementById("state").value;
-            const latitude = parseFloat(document.getElementById("latitude").value);
-            const longitude = parseFloat(document.getElementById("longitude").value);
-            const password = document.getElementById("password").value;
-            const referrerCode = document.getElementById("referrer-code").value || null;
-
-            // Simple validation check for Age >= 15
-            const dobDate = new Date(dob);
-            const today = new Date();
-            let age = today.getFullYear() - dobDate.getFullYear();
-            const m = today.getMonth() - dobDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
-                age--;
-            }
-            if (age < 15) {
-                errorMessage.innerText = "You must be at least 15 years old to register.";
-                errorBubble.style.display = "flex";
-                return;
-            }
-
-            errorBubble.style.display = "none";
-            submitBtn.disabled = true;
-            submitBtnText.innerText = "Creating account...";
-
-            try {
-                // Step 1: Register client profile
-                const registerClientResponse = await fetch("http://localhost:5022/api/Client/register-client", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        firstName,
-                        lastName,
-                        email,
-                        latitude,
-                        longitude,
-                        contact,
-                        gender,
-                        state,
-                        dob: new Date(dob).toISOString(),
-                        referrerCode
-                    })
-                });
-
-                if (!registerClientResponse.ok) {
-                    const clientData = await registerClientResponse.text();
-                    throw new Error(clientData || "Failed to register client profile details. Check inputs.");
-                }
-
-                // Step 2: Register Identity user login credentials
-                const registerIdentityResponse = await fetch("http://localhost:5022/api/v{version:apiVersion}/Account/register?version=1.0", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                });
-
-                if (!registerIdentityResponse.ok) {
-                    const identityData = await registerIdentityResponse.text();
-                    throw new Error(identityData || "Profile registered, but user auth account creation failed.");
-                }
-
-                // Step 3: Automatically log in the user
-                const loginResponse = await fetch("http://localhost:5022/api/v{version:apiVersion}/Account/Login?version=1.0", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const loginData = await loginResponse.json();
-
-                if (loginResponse.ok && loginData.token) {
-                    localStorage.setItem("clean_connect_token", loginData.token);
-                    localStorage.setItem("clean_connect_user_email", email);
-                    localStorage.setItem("clean_connect_user_id", loginData.userId || "");
-
-                    // Instantly retrieve and save their newly generated client details (e.g. referral code)
-                    try {
-                        const allClientsRes = await fetch("http://localhost:5022/api/Client/all-clients");
-                        if (allClientsRes.ok) {
-                            const clients = await allClientsRes.json();
-                            const client = clients.find(c => c.email && c.email.value && c.email.value.toLowerCase() === email.toLowerCase());
-                            if (client) {
-                                localStorage.setItem("clean_connect_client", JSON.stringify(client));
-                            }
-                        }
-                    } catch (err) {
-                        console.error(err);
-                    }
-
-                    // Success! Redirect to profile page
-                    window.location.href = '@Url.Action("Profile", "Account")';
-                } else {
-                    window.location.href = '@Url.Action("Login", "Account")';
-                }
-
-            } catch (error) {
-                console.error("Registration error:", error);
-                errorMessage.innerText = error.message || "A validation error occurred during registration. Verify coordinates are in Nigeria (Lat: 4.0-14.0, Lon: 2.5-15.5).";
-                errorBubble.style.display = "flex";
-                submitBtn.disabled = false;
-                submitBtnText.innerText = "Complete Registration";
-            }
-        }
-    </script>
-}
+</section>

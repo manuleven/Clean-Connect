@@ -18,11 +18,7 @@ namespace Clean_Connect.Application.Interface.Repositories
         IWalletRepository Wallets { get; }
         IEscrowRepository Escrows { get; }
         ICouponRepository Coupons { get; }
-        Task BeginTransactionAsync(CancellationToken cancellation);
-
-        Task CommitTransactionAsync(CancellationToken cancellation);
-
-        Task RollbackTransactionAsync(CancellationToken cancellation);
+        
 
         Task<int> SaveChangesAsync(CancellationToken cancellation);
     }

@@ -50,12 +50,15 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
             }
 
            var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
+            var roles = await user.GetRolesAsync(appUser);
 
             logger.LogInformation("User logged in: {Email}", request.Email);
 
             return new LoginResponse
             {
                 UserId = appUser.Id,
+                Email = appUser.Email ?? request.Email,
+                Roles = roles.ToArray(),
                 Token = token
             };
 

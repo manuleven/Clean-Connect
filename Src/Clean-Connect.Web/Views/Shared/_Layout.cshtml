@@ -1,64 +1,66 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    var title = ViewData["Title"] as string ?? "Clean Connect";
+    var role = ViewData["PortalRole"] as string ?? "Guest";
+    var isClient = string.Equals(role, "Client", StringComparison.OrdinalIgnoreCase);
+    var isWorker = string.Equals(role, "Worker", StringComparison.OrdinalIgnoreCase);
+
+    string Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0f766e" />
-    <title>@ViewData["Title"] - Clean Connect</title>
-    <script>
-        (() => {
-            const saved = localStorage.getItem("clean-connect-theme");
-            const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-            document.documentElement.dataset.theme = saved || preferred;
-        })();
-    </script>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Clean_Connect.Web.styles.css" asp-append-version="true" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d9488" />
+    <meta name="clean-connect-api-base" content="http://localhost:5022" />
+    <title>@title - Clean Connect</title>
+    <link rel="icon" type="image/png" href="~/images/favicon.png" />
+    <link rel="stylesheet" href="~/monoline/assets/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/monoline/assets/fonts/font-awesome.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/monoline/assets/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/monoline/assets/css/responsive.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/clean-connect-portal.css" asp-append-version="true" />
 </head>
-<body class="@ViewData["BodyClass"]">
-    <a class="skip-link" href="#main-content">Skip to content</a>
-
-    <header class="site-header">
-        <nav class="site-nav page-shell" aria-label="Primary navigation">
-            <a class="brand-lockup" asp-controller="Home" asp-action="Index" aria-label="Clean Connect home">
-                <span class="brand-mark">
-                    @await Html.PartialAsync("_AppIcon", "sparkle")
-                </span>
+<body class="cc-body @ViewData["BodyClass"]" data-portal-role="@role">
+    <a class="cc-skip-link" href="#main-content">Skip to content</a>
+    <header class="cc-topbar">
+        <nav class="container cc-nav" aria-label="Primary navigation">
+            <a class="cc-brand" asp-controller="Home" asp-action="Index">
+                <span class="cc-brand-mark">CC</span>
                 <span>
                     <strong>Clean Connect</strong>
-                    <small>Premium cleaning system</small>
+                    <small>Cleaning services platform</small>
                 </span>
             </a>
-
-            <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-menu" aria-label="Open navigation">
-                <span></span>
-                <span></span>
-                <span></span>
+            <button class="cc-menu-toggle" type="button" data-menu-toggle aria-label="Toggle navigation">
+                <i class="fa fa-bars"></i>
             </button>
-
-            <div class="site-menu" id="primary-menu" data-nav-menu>
-                <a asp-controller="Home" asp-action="Index">Home</a>
-                <a asp-controller="Booking" asp-action="Index">Booking</a>
-                <a asp-controller="Services" asp-action="Index">Services</a>
-                <a asp-controller="Workers" asp-action="Index">Workers</a>
-                <a asp-controller="Clients" asp-action="Index">Clients</a>
-                <a asp-controller="Payments" asp-action="Index">Payment</a>
-                <a asp-controller="Tracking" asp-action="Index">Tracking</a>
-                <a asp-controller="Wallet" asp-action="Index">Wallet</a>
-                <a asp-controller="Coupons" asp-action="Index">Coupons</a>
-                <a asp-controller="Admin" asp-action="Index">Admin</a>
-            </div>
-
-            <div class="nav-actions">
-                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode">
-                    @await Html.PartialAsync("_AppIcon", "sparkle")
-                </button>
-                <a class="btn-clean btn-clean--primary" asp-controller="Booking" asp-action="Index">
-                    @await Html.PartialAsync("_AppIcon", "calendar")
-                    <span>Book now</span>
-                </a>
+            <div class="cc-nav-links" data-menu>
+                @if (isClient)
+                {
+                    <a class="@Active("ClientDashboard")" asp-controller="ClientDashboard" asp-action="Index">Dashboard</a>
+                    <a class="@Active("ClientBookings")" asp-controller="ClientBookings" asp-action="Index">Book</a>
+                    <a class="@Active("ClientPayments")" asp-controller="ClientPayments" asp-action="Index">Payments</a>
+                    <a class="@Active("ClientMessages")" asp-controller="ClientMessages" asp-action="Index">Messages</a>
+                    <a class="@Active("ClientSettings")" asp-controller="ClientSettings" asp-action="Index">Settings</a>
+                }
+                else if (isWorker)
+                {
+                    <a class="@Active("WorkerDashboard")" asp-controller="WorkerDashboard" asp-action="Index">Dashboard</a>
+                    <a class="@Active("WorkerJobs")" asp-controller="WorkerJobs" asp-action="Index">Jobs</a>
+                    <a class="@Active("WorkerWallet")" asp-controller="WorkerWallet" asp-action="Index">Wallet</a>
+                    <a class="@Active("WorkerMessages")" asp-controller="WorkerMessages" asp-action="Index">Messages</a>
+                    <a class="@Active("WorkerSettings")" asp-controller="WorkerSettings" asp-action="Index">Settings</a>
+                }
+                else
+                {
+                    <a href="/#services">Services</a>
+                    <a href="/#how-it-works">How it works</a>
+                    <a href="/#reviews">Reviews</a>
+                    <a asp-controller="Account" asp-action="Login">Sign in</a>
+                    <a class="cc-nav-cta" asp-controller="Account" asp-action="Register">Get started</a>
+                }
             </div>
         </nav>
     </header>
@@ -67,36 +69,23 @@
         @RenderBody()
     </main>
 
-    <footer class="site-footer">
-        <div class="page-shell site-footer__grid">
+    <footer class="cc-footer">
+        <div class="container">
             <div>
-                <a class="brand-lockup brand-lockup--footer" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark">
-                        @await Html.PartialAsync("_AppIcon", "sparkle")
-                    </span>
-                    <span>
-                        <strong>Clean Connect</strong>
-                        <small>Verified cleaners. Protected payments.</small>
-                    </span>
-                </a>
+                <strong>Clean Connect</strong>
+                <p>Verified cleaners, protected payments, clear communication, and cleaner daily operations.</p>
             </div>
-            <div class="footer-links">
-                <a asp-controller="Booking" asp-action="Index">Book</a>
-                <a asp-controller="Services" asp-action="Index">Services</a>
-                <a asp-controller="Workers" asp-action="Index">Workers</a>
-                <a asp-controller="Clients" asp-action="Index">Clients</a>
-                <a asp-controller="Tracking" asp-action="Index">Track</a>
-                <a asp-controller="Wallet" asp-action="Index">Wallet</a>
-                <a asp-controller="Admin" asp-action="Index">Dashboard</a>
+            <div class="cc-footer-links">
                 <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <a asp-controller="Account" asp-action="Login">Sign in</a>
+                <a asp-controller="Account" asp-action="Register">Create account</a>
             </div>
-            <p>&copy; 2026 Clean Connect. Built for fast, trustworthy cleaning operations.</p>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/monoline/assets/js/jquery-1.12.4.min.js" asp-append-version="true"></script>
+    <script src="~/monoline/assets/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
+    <script src="~/js/clean-connect-portal.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

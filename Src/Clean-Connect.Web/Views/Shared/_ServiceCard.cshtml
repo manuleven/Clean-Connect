@@ -1,27 +1,40 @@
 @model ServiceCardViewModel
 
-<article class="service-card reveal-lift tilt-card">
-    <div class="service-card__header">
-        <span class="icon-bubble icon-bubble--@Model.Tone">
-            @await Html.PartialAsync("_AppIcon", Model.Icon)
+@{
+    var icons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["sparkle"] = "solar:stars-outline",
+        ["brush"] = "solar:broom-outline",
+        ["office"] = "solar:buildings-2-outline",
+        ["home"] = "solar:home-smile-angle-outline",
+        ["check"] = "solar:check-circle-outline"
+    };
+    var icon = icons.TryGetValue(Model.Icon, out var mappedIcon) ? mappedIcon : "solar:stars-outline";
+}
+
+<article class="card h-100 radius-12 p-24 cc-feature-card">
+    <div class="d-flex align-items-center justify-content-between gap-3 mb-16">
+        <span class="cc-stat-icon cc-stat-icon--@Model.Tone">
+            <iconify-icon icon="@icon"></iconify-icon>
         </span>
-        <span>@Model.Duration</span>
+        <span class="cc-status cc-status--info">@Model.Duration</span>
     </div>
-    <h3>@Model.Name</h3>
-    <p>@Model.Description</p>
-    <ul class="clean-list">
+    <h6 class="mb-8">@Model.Name</h6>
+    <p class="text-secondary-light mb-18">@Model.Description</p>
+    <ul class="list-unstyled d-grid gap-2 mb-20">
         @foreach (var feature in Model.Features)
         {
-            <li>
-                @await Html.PartialAsync("_AppIcon", "check")
+            <li class="d-flex align-items-start gap-2 text-secondary-light">
+                <iconify-icon icon="solar:check-circle-outline" class="text-success-main text-xl mt-2"></iconify-icon>
                 <span>@feature</span>
             </li>
         }
     </ul>
-    <div class="service-card__footer">
-        <strong>@Model.Price</strong>
-        <a class="icon-link" asp-controller="Booking" asp-action="Index" aria-label="Book @Model.Name">
-            @await Html.PartialAsync("_AppIcon", "calendar")
+    <div class="d-flex align-items-center justify-content-between gap-3 mt-auto">
+        <strong class="text-lg">@Model.Price</strong>
+        <a class="btn btn-primary-600 text-sm btn-sm px-12 py-10 radius-8 d-inline-flex align-items-center gap-2" asp-controller="Booking" asp-action="Index" aria-label="Book @Model.Name">
+            <iconify-icon icon="solar:calendar-add-outline"></iconify-icon>
+            Book
         </a>
     </div>
 </article>

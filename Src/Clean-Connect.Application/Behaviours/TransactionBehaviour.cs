@@ -1,37 +1,48 @@
 ﻿using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Infrastructure.Context;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Clean_Connect.Application.Behaviours
 {
-    public class TransactionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class TransactionBehaviour<TRequest, TResponse>
+          : IPipelineBehavior<TRequest, TResponse>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ApplicationDbContext _dbContext;
 
-        public TransactionBehaviour(IUnitOfWork unitOfWork)
+        public TransactionBehaviour(ApplicationDbContext dbContext)
         {
-            _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
         }
 
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
+            CancellationToken cancellationToken)
         {
-            await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            // 🔒 If already in transaction, just continue (prevents nesting issues)
+            if (_dbContext.Database.CurrentTransaction != null)
+            {
+                return await next();
+            }
+
+            await using IDbContextTransaction transaction =
+                await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             try
             {
                 var response = await next();
-                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
                 return response;
             }
             catch
             {
-                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
-
     }
 }

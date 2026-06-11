@@ -1,109 +1,202 @@
 @model BookingPageViewModel
 @{
-    ViewData["Title"] = "Book a Cleaning";
+    ViewData["Title"] = "Bookings";
+    ViewData["SubTitle"] = "Create and Manage";
+    ViewData["PageDescription"] = "Create bookings, apply coupons, find nearby workers, and move accepted jobs into payment.";
     ViewData["BodyClass"] = "booking-page";
 }
 
-<section class="page-hero page-hero--compact">
-    <div class="page-shell page-hero__grid">
+<section class="cc-hero mb-24">
+    <div class="cc-hero-inner cc-hero-grid">
         <div>
-            <p class="eyebrow">Smart booking</p>
-            <h1>Choose a service, set the schedule, and match with a verified cleaner.</h1>
-            <p>Mobile-first booking with transparent pricing, service context, address details, and cleaner matching in one focused flow.</p>
+            <span class="badge bg-primary-600 text-white radius-8 px-12 py-8 mb-16">Booking workflow</span>
+            <h1 class="cc-hero-title mb-16">Create a cleaning booking with all required API fields.</h1>
+            <p class="text-lg mb-0 max-w-720-px">This page covers service selection, customer and worker IDs, location bounds, date, time range, coupon code, nearby matching, and payment handoff.</p>
         </div>
-        <ol class="flow-list" aria-label="Booking progress">
-            @foreach (var step in Model.Steps)
-            {
-                @await Html.PartialAsync("_BookingStep", step)
-            }
-        </ol>
+        <div class="card bg-white bg-opacity-10 border border-white border-opacity-25 p-20 radius-12">
+            <h6 class="text-white mb-16">Booking progress</h6>
+            <ol class="cc-timeline">
+                @foreach (var step in Model.Steps)
+                {
+                    @await Html.PartialAsync("_BookingStep", step)
+                }
+            </ol>
+        </div>
     </div>
 </section>
 
-<section class="page-section">
-    <div class="page-shell app-workspace booking-workspace" data-booking-page>
-        <div class="workspace-main">
-            <div class="section-heading section-heading--left">
-                <p class="eyebrow">Service</p>
-                <h2>Select your cleaning package.</h2>
+<section class="row gy-4 mb-24">
+    <div class="col-xxl-8">
+        <div class="card radius-12 h-100">
+            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="mb-0">Select service package</h6>
+                    <span class="text-sm text-secondary-light">The selected card updates the summary and can be mirrored into the create form.</span>
+                </div>
+                <span class="cc-status cc-status--info">Step 1</span>
             </div>
-            <div class="booking-options">
-                @foreach (var option in Model.Options)
-                {
-                    <button class="booking-option @(option.Featured ? "is-selected" : "")" type="button" data-service-option data-name="@option.Name" data-price="@option.Price" data-duration="@option.Duration" aria-pressed="@(option.Featured ? "true" : "false")">
-                        <span class="icon-bubble icon-bubble--@(option.Featured ? "mint" : "sky")">
-                            @await Html.PartialAsync("_AppIcon", option.Icon)
-                        </span>
-                        <span>
-                            <strong>@option.Name</strong>
-                            <small>@option.Detail</small>
-                        </span>
-                        <span class="booking-option__price">₦@option.Price.ToString("N0")</span>
-                    </button>
-                }
-            </div>
-
-            <div class="form-panel reveal-lift">
-                <div class="form-grid">
-                    <label class="field-shell">
-                        <span>Date</span>
-                        <input type="date" value="2026-05-24" />
-                    </label>
-                    <label class="field-shell">
-                        <span>Time window</span>
-                        <select>
-                            <option>Morning, 8 AM - 12 PM</option>
-                            <option selected>Afternoon, 12 PM - 4 PM</option>
-                            <option>Evening, 4 PM - 8 PM</option>
-                        </select>
-                    </label>
-                    <label class="field-shell field-shell--wide">
-                        <span>Service address</span>
-                        <input type="text" value="18 Admiralty Way, Lekki Phase 1" />
-                    </label>
-                    <label class="field-shell field-shell--wide">
-                        <span>Cleaning notes</span>
-                        <textarea rows="4">Focus on kitchen appliances, shower glass, and window tracks.</textarea>
-                    </label>
+            <div class="card-body p-24">
+                <div class="row gy-3" data-select-group>
+                    @foreach (var option in Model.Options)
+                    {
+                        <div class="col-md-6">
+                            <button class="cc-service-option @(option.Featured ? "is-selected" : "")" type="button" data-select-card data-summary-service="@option.Name" data-summary-duration="@option.Duration" data-summary-price="NGN @option.Price.ToString("N0")" aria-pressed="@(option.Featured ? "true" : "false")">
+                                <div class="d-flex align-items-start gap-3">
+                                    <span class="cc-stat-icon cc-stat-icon--@(option.Featured ? "mint" : "sky")">
+                                        <iconify-icon icon="@(option.Icon == "office" ? "solar:buildings-2-outline" : option.Icon == "brush" ? "solar:broom-outline" : option.Icon == "home" ? "solar:home-smile-angle-outline" : "solar:stars-outline")"></iconify-icon>
+                                    </span>
+                                    <span class="flex-grow-1">
+                                        <strong class="d-block">@option.Name</strong>
+                                        <small class="text-secondary-light d-block">@option.Detail</small>
+                                        <span class="text-primary-600 fw-semibold d-block mt-10">NGN @option.Price.ToString("N0")</span>
+                                    </span>
+                                    <span class="cc-status cc-status--neutral">@option.Duration</span>
+                                </div>
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col-xxl-4">
+        <div class="card radius-12 h-100">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <h6 class="mb-0">Booking summary</h6>
+            </div>
+            <div class="card-body p-24">
+                <div class="d-flex align-items-center gap-3 mb-20">
+                    <span class="cc-avatar">@Model.RecommendedCleaner.Initials</span>
+                    <span class="flex-grow-1">
+                        <strong class="d-block">@Model.RecommendedCleaner.Name</strong>
+                        <small class="text-secondary-light">@Model.RecommendedCleaner.Specialty</small>
+                    </span>
+                    <span class="cc-status cc-status--warning">@Model.RecommendedCleaner.Rating</span>
+                </div>
+                <div class="d-grid gap-3">
+                    <div class="d-flex justify-content-between gap-3 border-bottom pb-12">
+                        <span class="text-secondary-light">Service</span>
+                        <strong class="text-end" data-summary="service">Premium Deep Clean</strong>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 border-bottom pb-12">
+                        <span class="text-secondary-light">Duration</span>
+                        <strong class="text-end" data-summary="duration">4-8 hrs</strong>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3 border-bottom pb-12">
+                        <span class="text-secondary-light">Arrival</span>
+                        <strong class="text-end">@Model.RecommendedCleaner.ArrivalWindow</strong>
+                    </div>
+                    <div class="d-flex justify-content-between gap-3">
+                        <span class="text-secondary-light">Estimate</span>
+                        <strong class="text-primary-600 text-end" data-summary="price">NGN 42,000</strong>
+                    </div>
+                </div>
+                <a asp-controller="Payments" asp-action="Index" class="btn btn-primary w-100 text-sm btn-sm px-16 py-14 radius-8 mt-24 d-inline-flex align-items-center justify-content-center gap-2">
+                    <iconify-icon icon="solar:card-outline" class="text-xl"></iconify-icon>
+                    Continue to payments
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <aside class="summary-panel booking-summary">
-            <div class="cleaner-card">
-                <span class="avatar-token">@Model.RecommendedCleaner.Initials</span>
+<section class="row gy-4">
+    <div class="col-xxl-7">
+        <div class="card radius-12 cc-api-card h-100">
+            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
                 <div>
-                    <strong>@Model.RecommendedCleaner.Name</strong>
-                    <small>@Model.RecommendedCleaner.Specialty</small>
+                    <h6 class="mb-0">Create booking</h6>
+                    <span class="text-sm text-secondary-light">POST /api/v1/Booking/create-Booking</span>
                 </div>
-                <span class="rating-pill">@Model.RecommendedCleaner.Rating</span>
+                <span class="cc-status cc-status--warning">Requires token</span>
             </div>
-            <dl class="summary-list">
-                <div>
-                    <dt>Selected service</dt>
-                    <dd data-selected-service>Premium Deep Clean</dd>
-                </div>
-                <div>
-                    <dt>Duration</dt>
-                    <dd data-selected-duration>4-8 hrs</dd>
-                </div>
-                <div>
-                    <dt>Arrival</dt>
-                    <dd>@Model.RecommendedCleaner.ArrivalWindow</dd>
-                </div>
-                <div>
-                    <dt>Cleaner jobs</dt>
-                    <dd>@Model.RecommendedCleaner.CompletedJobs completed</dd>
-                </div>
-            </dl>
-            <div class="price-total">
-                <span>Total estimate</span>
-                <strong data-selected-price>₦42,000</strong>
+            <div class="card-body p-24">
+                <form data-api-form data-method="POST" data-endpoint="/api/v1/Booking/create-Booking" data-auth="true">
+                    <div class="cc-form-grid">
+                        <label class="form-label">Client ID
+                            <input class="form-control mt-8" name="clientId" placeholder="00000000-0000-0000-0000-000000000000" required />
+                        </label>
+                        <label class="form-label">Worker ID
+                            <input class="form-control mt-8" name="workerId" placeholder="00000000-0000-0000-0000-000000000000" required />
+                        </label>
+                        <label class="form-label">Service type ID
+                            <input class="form-control mt-8" name="serviceTypeId" placeholder="00000000-0000-0000-0000-000000000000" required />
+                        </label>
+                        <label class="form-label">Date of service
+                            <input class="form-control mt-8" type="date" name="dateOfService" data-type="date" value="2026-06-03" required />
+                        </label>
+                        <label class="form-label">Latitude
+                            <input class="form-control mt-8" type="number" step="any" min="4" max="14" name="latitude" data-type="number" value="6.428" required />
+                        </label>
+                        <label class="form-label">Longitude
+                            <input class="form-control mt-8" type="number" step="any" min="2.5" max="15.5" name="longitude" data-type="number" value="3.421" required />
+                        </label>
+                        <label class="form-label">Search radius (meters)
+                            <input class="form-control mt-8" type="number" name="radiusInMeters" data-type="number" value="5000" required />
+                        </label>
+                        <label class="form-label">Time range
+                            <select class="form-select mt-8" name="timeRange" required>
+                                <option>Morning</option>
+                                <option selected>Afternoon</option>
+                            </select>
+                        </label>
+                        <label class="form-label">Coupon code
+                            <input class="form-control mt-8" name="couponCode" value="CLEAN10" />
+                        </label>
+                        <label class="form-label">Created by
+                            <input class="form-control mt-8" name="createdBy" value="clean-connect-ui" />
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary text-sm btn-sm px-16 py-12 radius-8 mt-20 d-inline-flex align-items-center gap-2">
+                        <iconify-icon icon="solar:calendar-add-outline" class="text-xl"></iconify-icon>
+                        Create booking
+                    </button>
+                </form>
+                <pre class="cc-api-response" data-api-response></pre>
             </div>
-            <a class="btn-clean btn-clean--primary btn-clean--full" asp-controller="Payments" asp-action="Index">
-                @await Html.PartialAsync("_AppIcon", "card")
-                <span>Continue to payment</span>
-            </a>
-        </aside>
+        </div>
+    </div>
+
+    <div class="col-xxl-5">
+        <div class="card radius-12 cc-api-card mb-24">
+            <div class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="mb-0">Find nearby workers</h6>
+                    <span class="text-sm text-secondary-light">POST /api/Worker/nearby</span>
+                </div>
+                <span class="cc-status cc-status--success">Match</span>
+            </div>
+            <div class="card-body p-24">
+                <form data-api-form data-method="POST" data-endpoint="/api/Worker/nearby">
+                    <div class="cc-form-grid">
+                        <label class="form-label">Latitude
+                            <input class="form-control mt-8" type="number" step="any" name="latitude" data-type="number" value="6.428" />
+                        </label>
+                        <label class="form-label">Longitude
+                            <input class="form-control mt-8" type="number" step="any" name="longitude" data-type="number" value="3.421" />
+                        </label>
+                        <label class="form-label cc-span-2">Radius in meters
+                            <input class="form-control mt-8" type="number" name="radiusInMeters" data-type="number" value="5000" />
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary text-sm btn-sm px-16 py-12 radius-8 mt-20">Search workers</button>
+                </form>
+                <pre class="cc-api-response" data-api-response></pre>
+            </div>
+        </div>
+
+        <div class="card radius-12">
+            <div class="card-header border-bottom bg-base py-16 px-24">
+                <h6 class="mb-0">Expected lifecycle</h6>
+            </div>
+            <div class="card-body p-24">
+                <ol class="cc-timeline">
+                    <li class="cc-timeline-item is-complete"><span class="cc-timeline-dot"></span><span><strong>Created</strong><small class="d-block text-secondary-light">Client submits booking details.</small></span><small>API</small></li>
+                    <li class="cc-timeline-item is-active"><span class="cc-timeline-dot"></span><span><strong>Accepted</strong><small class="d-block text-secondary-light">Worker accepts and payment becomes available.</small></span><small>Worker</small></li>
+                    <li class="cc-timeline-item"><span class="cc-timeline-dot"></span><span><strong>Paid</strong><small class="d-block text-secondary-light">Escrow is funded before work starts.</small></span><small>Payment</small></li>
+                    <li class="cc-timeline-item"><span class="cc-timeline-dot"></span><span><strong>Completed</strong><small class="d-block text-secondary-light">Client confirms and payout can release.</small></span><small>Client</small></li>
+                </ol>
+            </div>
+        </div>
     </div>
 </section>

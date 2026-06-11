@@ -1,5 +1,6 @@
 ﻿using Clean_Connect.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,13 +14,15 @@ namespace Clean_Connect.Application.Command.Auth
     public class JwtTokenCommandHandler : IRequestHandler<JwtTokenCommand, string>
     {
         private readonly IConfiguration _configuration;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public JwtTokenCommandHandler(IConfiguration configuration)
+        public JwtTokenCommandHandler(IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
             _configuration = configuration;
+            _userManager = userManager;
         }
 
-        public Task<string> Handle(JwtTokenCommand request, CancellationToken cancellationToken)
+        public async Task<string> Handle(JwtTokenCommand request, CancellationToken cancellationToken)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
 
@@ -32,9 +35,18 @@ namespace Clean_Connect.Application.Command.Auth
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, request.User.Id.ToString()),
-                new Claim(ClaimTypes.Email, request.User.Email ),
-                new Claim(ClaimTypes.Name, request.User.UserName)
+                new Claim(JwtRegisteredClaimNames.Sub, request.User.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Email, request.User.Email ?? string.Empty),
+                new Claim(ClaimTypes.Name, request.User.UserName ?? request.User.Email ?? string.Empty)
             };
+
+            var roles = await _userManager.GetRolesAsync(request.User);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+                claims.Add(new Claim("role", role));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -48,7 +60,7 @@ namespace Clean_Connect.Application.Command.Auth
 
             var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Task.FromResult(tokenString);
+            return tokenString;
         }
     }
 }

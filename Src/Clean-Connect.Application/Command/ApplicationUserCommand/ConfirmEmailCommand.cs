@@ -1,11 +1,6 @@
 ﻿using Clean_Connect.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.ApplicationUserCommand
 {
@@ -23,12 +18,12 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
             var checkUser = await _userManager.FindByIdAsync(request.UserId);
             if (checkUser == null)
             {
-                return await Task.FromResult(false);
+                return false;
             }
 
             var confimation = await _userManager.ConfirmEmailAsync(checkUser, request.Token);
 
-            return await Task.FromResult(true);
+            return confimation.Succeeded;
         }
     }
 

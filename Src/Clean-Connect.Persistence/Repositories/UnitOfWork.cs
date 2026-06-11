@@ -1,10 +1,12 @@
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Clean_Connect.Persistence.Repositories
 {
     public class UnitOfWork(ApplicationDbContext dbContext, IWorkerRepository workerRepository,IRatingRepository ratingRepository, IPaymentRepository paymentRepository, IBookingRepository bookingRepository, IClientRepository clientRepository, IServiceTypeRepository serviceTypeRepository, IWalletRepository walletRepository, IEscrowRepository escrowRepository, ICouponRepository couponRepository) : IUnitOfWork
     {
+       
         public IWorkerRepository Workers { get;  } = workerRepository;
 
 
@@ -22,19 +24,7 @@ namespace Clean_Connect.Persistence.Repositories
 
         public ICouponRepository Coupons { get; } = couponRepository;
 
-        public async Task BeginTransactionAsync(CancellationToken cancellation)
-        {
-            await dbContext.Database.BeginTransactionAsync(cancellation);
-        }   
-
-        public async Task CommitTransactionAsync(CancellationToken cancellation)
-        {
-            await dbContext.Database.CommitTransactionAsync(cancellation);
-        }
-        public async Task RollbackTransactionAsync(CancellationToken cancellation)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellation);
-        }
+       
         public IServiceTypeRepository ServiceTypes { get; } = serviceTypeRepository;
 
         public async Task <int> SaveChangesAsync(CancellationToken cancellation)

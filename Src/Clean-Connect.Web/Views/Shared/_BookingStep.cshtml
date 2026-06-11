@@ -1,14 +1,19 @@
 @model BookingStepViewModel
 
-<li class="flow-step flow-step--@Model.State">
-    <span class="flow-step__dot">
-        @if (Model.State == "complete")
-        {
-            @await Html.PartialAsync("_AppIcon", "check")
-        }
-    </span>
+@{
+    var stateClass = Model.State switch
+    {
+        "complete" => "is-complete",
+        "active" => "is-active",
+        _ => string.Empty
+    };
+}
+
+<li class="cc-timeline-item @stateClass">
+    <span class="cc-timeline-dot"></span>
     <span>
         <strong>@Model.Label</strong>
-        <small>@Model.Detail</small>
+        <small class="text-secondary-light d-block">@Model.Detail</small>
     </span>
+    <small class="text-secondary-light text-capitalize">@Model.State</small>
 </li>

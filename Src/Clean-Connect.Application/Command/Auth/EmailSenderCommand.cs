@@ -35,9 +35,11 @@ namespace Clean_Connect.Application.Command.Auth
                 EnableSsl = true
             };
 
+            var from = _configuration["Email:Smtp:From"];
+
             var mailMessage = new MailMessage()
             {
-                From = new MailAddress("alaoabdulquddus66@gmail.com", "Clean Connect"),
+                From = new MailAddress(from, "Clean Connect"),
                 Body = request.Body,
                 Subject = request.Subject,
                 IsBodyHtml = true

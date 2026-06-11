@@ -8,17 +8,17 @@ namespace Clean_Connect.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IExperienceDataService _experienceData;
+        private readonly IPortalExperienceService _portalExperience;
 
-        public HomeController(ILogger<HomeController> logger, IExperienceDataService experienceData)
+        public HomeController(ILogger<HomeController> logger, IPortalExperienceService portalExperience)
         {
             _logger = logger;
-            _experienceData = experienceData;
+            _portalExperience = portalExperience;
         }
 
         public IActionResult Index()
         {
-            return View(_experienceData.GetHomePage());
+            return View(_portalExperience.GetPublicHome());
         }
 
         public IActionResult Privacy()

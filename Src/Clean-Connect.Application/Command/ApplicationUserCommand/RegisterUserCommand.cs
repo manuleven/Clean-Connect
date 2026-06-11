@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Clean_Connect.Application.Command.ApplicationUserCommand
 {
-    public record RegisterUserCommand(string Email, string Password) : IRequest<Guid>;
+    public record RegisterUserCommand(string Email, string Password, string Role = "Client") : IRequest<Guid>;
 
     public class RegisterUserValidator : AbstractValidator<RegisterUserCommand>
     {
@@ -39,6 +39,13 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                 .WithMessage("Password must contain at least one digit")
                 .Matches("[^a-zA-Z0-9]")
                 .WithMessage("Password must contain at least one special character");
+
+            RuleFor(x => x.Role)
+                .NotEmpty()
+                .WithMessage("Role is required")
+                .Must(role => string.Equals(role, "Client", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(role, "Worker", StringComparison.OrdinalIgnoreCase))
+                .WithMessage("Role must be Client or Worker");
         }
     }
 
@@ -48,13 +55,13 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
         private readonly IConfiguration configuration;
         private readonly UserManager<ApplicationUser> user;
         private readonly ILogger<RegisterUserCommandHandler> logger;
-         private readonly IMediator mediator;
+        private readonly IMediator mediator;
 
         public RegisterUserCommandHandler(IConfiguration _configuration, ILogger<RegisterUserCommandHandler> _logger, IMediator _mediator, UserManager<ApplicationUser> _user)
         {
             logger = _logger;
             mediator = _mediator;
-               user = _user;
+            user = _user;
             configuration = _configuration;
         }
 
@@ -86,19 +93,50 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                 throw new ValidationException($"Failed to create user: {errors}");
             }
 
+            var role = string.Equals(request.Role, "Worker", StringComparison.OrdinalIgnoreCase)
+                ? "Worker"
+                : "Client";
+            var roleResult = await user.AddToRoleAsync(newUser, role);
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+
+                logger.LogError("Failed to assign role {Role} to user with email {Email}. Errors: {Errors}", role, email, errors);
+                throw new ValidationException($"Failed to assign role: {errors}");
+            }
+
             var token = await user.GenerateEmailConfirmationTokenAsync(newUser);
 
-            var confirmationLink = $"{configuration["App:ClientUrl"]}/confirm-email?userId={newUser.Id}&token={Uri.EscapeDataString(token)}";
+            var baseUrl = configuration["App:ClientUrl"];
+
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new Exception("App:ClientUrl is missing in configuration");
+
+            var confirmationLink = $"{baseUrl.TrimEnd('/')}/confirm-email?userId={newUser.Id}&token={Uri.EscapeDataString(token)}";
 
             var emailMessage = new EmailSenderCommand(
                 ToEmail: newUser.Email,
                 Subject: "Confirm your email",
-                Body: $"Please confirm your email by clicking on the following link: <a href='{confirmationLink}'>Confirm Email</a>");
+                Body: $@"
+                        <html>
+                          <body>
+                            <p>Please confirm your email by clicking the button below:</p>
+
+                            <a href='{confirmationLink}'
+                               style='display:inline-block;padding:12px 20px;background:#28a745;
+                               color:#ffffff;text-decoration:none;border-radius:6px;font-weight:bold;'>
+                               Confirm Email
+                            </a>
+
+                           
+                          </body>
+                        </html>"
+                );
 
             await mediator.Send(emailMessage, cancellationToken);
 
 
-            logger.LogInformation("User with email {Email} created successfully", request.Email);
+            logger.LogInformation("User with email {Email} created successfully with role {Role}", request.Email, role);
             return newUser.Id;
 
         }

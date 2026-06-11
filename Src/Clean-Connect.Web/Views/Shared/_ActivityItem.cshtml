@@ -1,12 +1,31 @@
 @model ActivityItemViewModel
 
-<article class="activity-item" data-activity-item>
-    <span class="icon-bubble icon-bubble--@Model.Tone">
-        @await Html.PartialAsync("_AppIcon", Model.Icon)
+@{
+    var icons = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["calendar"] = "solar:calendar-mark-outline",
+        ["card"] = "solar:card-outline",
+        ["route"] = "solar:map-point-wave-outline",
+        ["chart"] = "solar:chart-square-outline",
+        ["bell"] = "solar:bell-bing-outline",
+        ["shield"] = "solar:shield-check-outline",
+        ["office"] = "solar:buildings-2-outline",
+        ["user"] = "solar:user-check-rounded-outline",
+        ["check"] = "solar:check-circle-outline",
+        ["sparkle"] = "solar:stars-outline",
+        ["brush"] = "solar:broom-outline",
+        ["home"] = "solar:home-smile-angle-outline"
+    };
+    var icon = icons.TryGetValue(Model.Icon, out var mappedIcon) ? mappedIcon : "solar:stars-outline";
+}
+
+<article class="cc-action-item" data-activity-item>
+    <span class="cc-stat-icon cc-stat-icon--@Model.Tone">
+        <iconify-icon icon="@icon"></iconify-icon>
     </span>
     <span>
         <strong>@Model.Title</strong>
-        <small>@Model.Description</small>
+        <small class="text-secondary-light d-block">@Model.Description</small>
     </span>
-    <time>@Model.Time</time>
+    <time class="text-sm text-secondary-light">@Model.Time</time>
 </article>

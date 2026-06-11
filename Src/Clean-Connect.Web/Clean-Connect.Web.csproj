@@ -7,4 +7,14 @@
     <RootNamespace>Clean_Connect.Web</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AspNetCoreHero.ToastNotification" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Clean-Connect.Application\Clean-Connect.Application.csproj" />
+    <ProjectReference Include="..\Clean-Connect.Infrastructure\Clean-Connect.Infrastructure.csproj" />
+    <ProjectReference Include="..\Clean-Connect.Persistence\Clean-Connect.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>

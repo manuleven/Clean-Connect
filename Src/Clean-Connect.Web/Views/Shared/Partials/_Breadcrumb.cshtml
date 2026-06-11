@@ -1,0 +1,24 @@
+@{
+    var title = ViewData["Title"]?.ToString() ?? "Dashboard";
+    var subTitle = ViewData["SubTitle"]?.ToString() ?? title;
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
+    <div>
+        <h6 class="fw-semibold mb-0">@title</h6>
+        @if (ViewData["PageDescription"] is string description && !string.IsNullOrWhiteSpace(description))
+        {
+            <span class="text-sm text-secondary-light">@description</span>
+        }
+    </div>
+    <ul class="d-flex align-items-center gap-2">
+        <li class="fw-medium">
+            <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-1 hover-text-primary">
+                <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                Dashboard
+            </a>
+        </li>
+        <li>-</li>
+        <li class="fw-medium">@subTitle</li>
+    </ul>
+</div>
