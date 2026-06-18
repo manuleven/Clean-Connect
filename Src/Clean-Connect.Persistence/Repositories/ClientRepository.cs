@@ -1,6 +1,7 @@
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Infrastructure.Context;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ namespace Clean_Connect.Persistence.Repositories
                 .FirstOrDefaultAsync(x => x.Id == clientId);
         }
 
+
+        
         public async Task<IEnumerable<Client>> GetAllClients(CancellationToken cancellationToken)
         {
             return await dbContext.Clients.ToListAsync(cancellationToken);

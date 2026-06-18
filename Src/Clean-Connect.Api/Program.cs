@@ -139,6 +139,7 @@ builder.Services.AddScoped<MarkAsCompletedService>();
 builder.Services.AddScoped<EscrowService>();
 builder.Services.AddScoped<PayoutService>();
 builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();

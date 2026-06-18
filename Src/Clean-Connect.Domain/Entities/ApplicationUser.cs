@@ -11,11 +11,19 @@ namespace Clean_Connect.Domain.Entities
             Email = email ?? throw new ArgumentNullException(nameof(email));
             UserName = email;
             DateCreated = DateTime.UtcNow;
+            IsClientProfileCompleted = false;
+            IsWorkerProfileCompleted = false;
+
         }
 
       
 
         public DateTime DateCreated { get; private set; } = default!;
+        public bool IsClientProfileCompleted { get; private set; } = default!;
+
+        public bool IsWorkerProfileCompleted { get; private set; } = default!;
+
+        public DateTime? EmailConfirmationSentAt { get; private set; } = default!;
 
 
         public static ApplicationUser Create(string email)
@@ -37,6 +45,14 @@ namespace Clean_Connect.Domain.Entities
             Email = newEmail;
             UserName = newEmail;
         }
+
+        public void MarkEmailConfirmationSent()
+        {
+            EmailConfirmationSentAt = DateTime.UtcNow;
+        }
+
+        public void CompleteClientProfile() => IsClientProfileCompleted = true;
+        public void CompleteWorkerProfile() => IsWorkerProfileCompleted = true;
 
 
 

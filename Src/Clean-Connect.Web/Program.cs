@@ -11,13 +11,21 @@ using Clean_Connect.Persistence.Repositories;
 using Clean_Connect.Web.Hubs;
 using Clean_Connect.Web.Services;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+
+// --------------------
+// JWT settings
+// --------------------
+var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 // MediatR
 // --------------------
@@ -48,6 +56,8 @@ builder.Services.AddScoped<MarkAsCompletedService>();
 builder.Services.AddScoped<EscrowService>();
 builder.Services.AddScoped<PayoutService>();
 builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
 builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 
 
@@ -55,6 +65,28 @@ builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+// --------------------
+// Authentication - JWT
+// --------------------
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+    };
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

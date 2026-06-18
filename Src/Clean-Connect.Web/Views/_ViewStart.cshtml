@@ -1,3 +1,12 @@
-﻿@{
-    Layout = "_Layout";
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var adminControllers = new[] { "Admin", "Booking", "Clients", "Coupons", "Payments", "Services", "Tracking", "Wallet", "Workers" };
+    if (adminControllers.Contains(controller))
+    {
+        Layout = "_AdminLayout";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
 }

@@ -15,6 +15,13 @@ body.cc-body {
   color: var(--cc-ink);
   background: #fff;
   font-family: Poppins, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main#main-content {
+  flex: 1 0 auto;
 }
 
 .cc-skip-link {

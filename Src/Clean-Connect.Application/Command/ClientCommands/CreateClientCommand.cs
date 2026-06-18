@@ -1,11 +1,13 @@
 using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
+using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
 using Clean_Connect.Domain.Enums;
 using Clean_Connect.Domain.Utilities;
 using Clean_Connect.Domain.Value_Objects;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System.Data;
 
@@ -74,7 +76,7 @@ namespace Clean_Connect.Application.Command.ClientCommands
 
     }
 
-    public class CreateClientCommandHandler(IUnitOfWork repo, GeocodingService geocodingService, ILogger<CreateClientCommandHandler>logger) : IRequestHandler<CreateClientCommand, bool>
+    public class CreateClientCommandHandler(IUnitOfWork repo, GeocodingService geocodingService, ICurrentUser currentUser, UserManager<ApplicationUser> userManager, ILogger<CreateClientCommandHandler>logger) : IRequestHandler<CreateClientCommand, bool>
     {
         public async Task<bool> Handle(CreateClientCommand request, CancellationToken cancellationToken)
         {
@@ -132,6 +134,20 @@ namespace Clean_Connect.Application.Command.ClientCommands
 
             await repo.Clients.CreateClient(client, cancellationToken);
             var result = await repo.SaveChangesAsync(cancellationToken) > 0;
+
+            if (result)
+            {
+                var appUser = await userManager.FindByIdAsync(currentUser.UserId!);
+
+                if (appUser != null)
+                {
+                    appUser.CompleteClientProfile();
+
+                    await userManager.UpdateAsync(appUser);
+                }
+            }
+
+            
 
             logger.LogInformation("Client created successfully with ID: {ClientId}", client.Id);
             return result;

@@ -1,8 +1,10 @@
 ﻿using Clean_Connect.Application.Command.Auth;
 using Clean_Connect.Application.DTO;
+using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,7 +13,6 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
 {
     public record LoginCommand(string Email, string Password, bool RememberMe) : IRequest<LoginResponse>;
 
-   
     public class LoginCommandValidator : AbstractValidator<LoginCommand>
     {
         public LoginCommandValidator()
@@ -31,25 +32,38 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
         }
     }
 
-    public class LoginCommandHandler(UserManager<ApplicationUser> user, IMediator _mediator, SignInManager<ApplicationUser> signInManager, ILogger<RegisterUserCommandHandler> logger) : IRequestHandler<LoginCommand, LoginResponse>
+    public class LoginCommandHandler(UserManager<ApplicationUser> user,  IMediator _mediator, SignInManager<ApplicationUser> signInManager, ILogger<RegisterUserCommandHandler> logger, IConfiguration configuration) : IRequestHandler<LoginCommand, LoginResponse>
     {
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            var login = await signInManager.PasswordSignInAsync(request.Email, request.Password, request.RememberMe, lockoutOnFailure: false);
-            if (!login.Succeeded)
-            {
-                logger.LogWarning("Login failed for email: {Email}", request.Email);
-                throw new UnauthorizedAccessException("Invalid email or password.");
-            }
-
+            // Find user first so we can return meaningful (but not leaking) errors
             var appUser = await user.FindByEmailAsync(request.Email);
             if (appUser == null)
             {
-                logger.LogError("User not found after successful login: {Email}", request.Email);
-                throw new InvalidOperationException("User not found.");
+                logger.LogWarning("Login failed for email: {Email} (invalid password)", request.Email);
+                return new LoginResponse
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Invalid email or password.",
+                    UserId = Guid.Empty
+                };
+            }
+      
+
+            var login = await signInManager.PasswordSignInAsync(appUser,request.Password,request.RememberMe,lockoutOnFailure: false);
+            if (!login.Succeeded)
+            {
+                logger.LogWarning("Login failed for email: {Email} (user not found)", request.Email);
+                return new LoginResponse
+                {
+                    IsSuccessful = false,
+                    ErrorMessage = "Invalid email or password.",
+                    UserId = appUser.Id,
+                    
+                };
             }
 
-           var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
+            var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
             var roles = await user.GetRolesAsync(appUser);
 
             logger.LogInformation("User logged in: {Email}", request.Email);
@@ -59,11 +73,10 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                 UserId = appUser.Id,
                 Email = appUser.Email ?? request.Email,
                 Roles = roles.ToArray(),
-                Token = token
+                Token = token,
+                IsSuccessful = true,
+               
             };
-
         }
     }
-
-
 }

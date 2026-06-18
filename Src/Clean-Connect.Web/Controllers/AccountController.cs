@@ -1,7 +1,14 @@
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Clean_Connect.Application.Command.ApplicationUserCommand;
+using Clean_Connect.Application.Command.Auth;
+using Clean_Connect.Application.DTO;
+using Clean_Connect.Domain.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Clean_Connect.Web.Controllers
 {
@@ -10,17 +17,100 @@ namespace Clean_Connect.Web.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly IMediator _mediator;
         private readonly INotyfService _notyf;
+        private readonly UserManager<ApplicationUser> _user;
 
-        public AccountController(ILogger<AccountController> logger, IMediator mediator, INotyfService notyf)
+        public AccountController(ILogger<AccountController> logger, IMediator mediator, INotyfService notyf, UserManager<ApplicationUser> user)
         {
             _logger = logger;
             _mediator = mediator;
             _notyf = notyf;
-        }   
+            _user = user;
+        }
 
+        [HttpGet("Login")]
         public IActionResult Login()
         {
-            return View();
+            return View(new LoginDto());
+        }
+
+        [HttpPost("Login")]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(LoginDto model, CancellationToken cancellationToken = default)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Login validation failed for {Email}", model.Email);
+                _notyf.Error("Please correct the highlighted errors.");
+                return View(model);
+            }
+
+            try
+            {
+                _logger.LogInformation("Login attempt for {Email}", model.Email);
+
+                var command = new LoginCommand(
+                    model.Email,
+                    model.Password,
+                    model.RememberMe);
+
+                var result = await _mediator.Send(command, cancellationToken);
+
+                // Email not confirmed
+                if (result?.EmailNotConfirmed == true)
+                {
+                    _logger.LogInformation(
+                        "Unconfirmed email login attempt for {Email}",
+                        model.Email);
+
+                    _notyf.Warning(
+                        "Your email address has not been verified.");
+
+                    return RedirectToAction(
+                        nameof(EmailNotConfirmed),
+                        new { email = result.Email });
+                }
+
+                // Invalid login
+                if (result == null || !result.IsSuccessful)
+                {
+                    _logger.LogWarning(
+                        "Failed login attempt for {Email}. Reason: {Error}",
+                        model.Email,
+                        result?.ErrorMessage);
+
+                    _notyf.Error(
+                        result?.ErrorMessage ??
+                        "Invalid email or password.");
+
+                    ModelState.AddModelError(
+                        string.Empty,
+                        result?.ErrorMessage ??
+                        "Invalid email or password.");
+
+                    return View(model);
+                }
+
+                _logger.LogInformation(
+                    "User {Email} logged in successfully",
+                    model.Email);
+
+                _notyf.Success("Login successful. Welcome back!");
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while logging in {Email}",
+                    model.Email);
+
+                _notyf.Error(
+                    "An unexpected error occurred. Please try again.");
+
+                return View(model);
+            }
         }
 
         [HttpGet("Register-User")]
@@ -56,6 +146,69 @@ namespace Clean_Connect.Web.Controllers
             return View(model : email);
         }
 
+        [HttpPost("Resend-Email")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResendConfirmationEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                _logger.LogWarning("Resend confirmation email attempted with empty email.");
+                _notyf.Warning("Invalid email address.");
+
+                return RedirectToAction(nameof(Login));
+            }
+
+            try
+            {
+                var result = await _mediator.Send(new ResendEmailConfirmationCommand(email));
+
+                if (result)
+                {
+                    _logger.LogInformation(
+                        "Verification email resent successfully to {Email}",
+                        email);
+
+                    _notyf.Success(
+                        "A new verification email has been sent. Please check your inbox.");
+
+                    return RedirectToAction(nameof(EmailNotConfirmed), new { email });
+                }
+
+                _logger.LogWarning(
+                    "Resend confirmation email failed for {Email}",
+                    email);
+
+                _notyf.Warning(
+                    "Unable to resend verification email. The email may already be confirmed or you may need to wait before trying again.");
+
+                return RedirectToAction(nameof(EmailNotConfirmed), new { email });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "An error occurred while resending confirmation email for {Email}",
+                    email);
+
+                _notyf.Error(
+                    "Something went wrong while sending the verification email.");
+
+                return View("Error");
+            }
+        }
+
+        [HttpGet("Email-not-confirmed")]
+        public IActionResult EmailNotConfirmed(string email)
+        {
+            _logger.LogInformation(
+                "EmailNotConfirmed page accessed for {Email}",
+                email);
+
+            ViewBag.Email = email;
+
+            return View();
+        }
+
         [HttpGet("Confirm-Email")]
 
         public async Task<IActionResult> ConfirmEmail(Guid userId, string token, CancellationToken cancellationToken)
@@ -72,6 +225,49 @@ namespace Clean_Connect.Web.Controllers
             return View("Error", null);
         }
 
+        //[Authorize]
+        //public async Task<IActionResult> GetStarted()
+        //{
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //    var user = await _user.FindByIdAsync(userId);
+
+        //    if (await _user.IsInRoleAsync(user, "Client"))
+        //    {
+        //        var clientProfileExists = await _dbContext.ClientProfiles
+        //            .AnyAsync(x => x.UserId == userId);
+
+        //        if (!clientProfileExists)
+        //        {
+        //            return RedirectToAction(
+        //                "Create",
+        //                "ClientProfile");
+        //        }
+
+        //        return RedirectToAction(
+        //            "Create",
+        //            "Booking");
+        //    }
+
+        //    if (await _userManager.IsInRoleAsync(user, "Worker"))
+        //    {
+        //        var workerProfileExists = await _dbContext.WorkerProfiles
+        //            .AnyAsync(x => x.UserId == userId);
+
+        //        if (!workerProfileExists)
+        //        {
+        //            return RedirectToAction(
+        //                "Create",
+        //                "WorkerProfile");
+        //        }
+
+        //        return RedirectToAction(
+        //            "Dashboard",
+        //            "Worker");
+        //    }
+
+        //    return RedirectToAction("Index", "Home");
+        //}
         public IActionResult Profile()
         {
             return View();

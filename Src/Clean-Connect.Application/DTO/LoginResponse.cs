@@ -14,6 +14,10 @@ namespace Clean_Connect.Application.DTO
 
         public IReadOnlyList<string> Roles { get; set; } = [];
 
+        public bool IsSuccessful { get; set; }
+        public string? ErrorMessage { get; set; }
         public string Token { get; set; } = string.Empty;
+
+        public bool EmailNotConfirmed { get; set; }
     }
 }
