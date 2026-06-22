@@ -48,21 +48,49 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                     UserId = Guid.Empty
                 };
             }
-      
+
+            if (!appUser.EmailConfirmed)
+            {
+                logger.LogWarning("Login failed for email: {Email} (email not confirmed)", request.Email);
+
+                return new LoginResponse
+                {
+                    IsSuccessful = false,
+                    EmailNotConfirmed = true,
+                    ErrorMessage = "Please confirm your email before logging in.",
+                    UserId = appUser.Id
+                };
+            }
+
+
+
 
             var login = await signInManager.PasswordSignInAsync(appUser,request.Password,request.RememberMe,lockoutOnFailure: false);
             if (!login.Succeeded)
             {
-                logger.LogWarning("Login failed for email: {Email} (user not found)", request.Email);
+                
+
+                if (login.IsLockedOut)
+                {
+                    logger.LogWarning("Login failed for email: {Email} (account locked out)", request.Email);
+
+                    return new LoginResponse
+                    {
+                        IsSuccessful = false,
+                        ErrorMessage = "Your account is locked. Please try again later.",
+                        UserId = appUser.Id
+                    };
+                }
+
+                logger.LogWarning("Login failed for email: {Email} (invalid password)", request.Email);
+
                 return new LoginResponse
                 {
                     IsSuccessful = false,
                     ErrorMessage = "Invalid email or password.",
-                    UserId = appUser.Id,
-                    
+                    UserId = appUser.Id
                 };
             }
-
             var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
             var roles = await user.GetRolesAsync(appUser);
 

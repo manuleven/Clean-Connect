@@ -70,7 +70,7 @@ namespace Clean_Connect.Application.Command.Auth
             var encodedToken = Uri.EscapeDataString(token);
 
             var callbackUrl =
-                $"{baseUrl.TrimEnd('/')}/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}";
+                $"{baseUrl.TrimEnd('/')}/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
 
             // 📧 send email
             var emailMessage = new EmailSenderCommand(

@@ -57,7 +57,7 @@ namespace Clean_Connect.Web.Controllers
                 var result = await _mediator.Send(command, cancellationToken);
 
                 // Email not confirmed
-                if (result?.EmailNotConfirmed == true)
+                if (result.EmailNotConfirmed == true)
                 {
                     _logger.LogInformation(
                         "Unconfirmed email login attempt for {Email}",
@@ -68,7 +68,7 @@ namespace Clean_Connect.Web.Controllers
 
                     return RedirectToAction(
                         nameof(EmailNotConfirmed),
-                        new { email = result.Email });
+                        new { email = model.Email });
                 }
 
                 // Invalid login
@@ -155,7 +155,7 @@ namespace Clean_Connect.Web.Controllers
                 _logger.LogWarning("Resend confirmation email attempted with empty email.");
                 _notyf.Warning("Invalid email address.");
 
-                return RedirectToAction(nameof(Login));
+                return RedirectToAction(nameof(EmailNotConfirmed));
             }
 
             try
@@ -204,9 +204,9 @@ namespace Clean_Connect.Web.Controllers
                 "EmailNotConfirmed page accessed for {Email}",
                 email);
 
-            ViewBag.Email = email;
+            
 
-            return View();
+            return View("ReconfirmationEmail", model : email);
         }
 
         [HttpGet("Confirm-Email")]

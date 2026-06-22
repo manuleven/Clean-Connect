@@ -1,4 +1,6 @@
-﻿@{
+﻿@model string;
+
+@{
     ViewData["Title"] = "Email Verification Required";
 }
 
@@ -20,7 +22,7 @@
 
                     <p class="text-muted mb-4">
                         Your email address
-                        <strong>@ViewBag.Email</strong>
+                        <strong>@Model</strong>
                         has not been verified.
                     </p>
 
@@ -37,7 +39,7 @@
 
                         <input type="hidden"
                                name="email"
-                               value="@ViewBag.Email" />
+                               value="@Model" />
 
                         <button type="submit"
                                 class="btn btn-primary w-100">
