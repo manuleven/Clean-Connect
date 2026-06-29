@@ -19,5 +19,8 @@ namespace Clean_Connect.Application.DTO
         public string Token { get; set; } = string.Empty;
 
         public bool EmailNotConfirmed { get; set; }
+
+        public bool RequiresWorkerProfileCompletion { get; set; }
+        public bool RequiresClientProfileCompletion { get; set; }
     }
 }

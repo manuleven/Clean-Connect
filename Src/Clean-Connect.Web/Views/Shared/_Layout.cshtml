@@ -1,97 +1,190 @@
-@{
-    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
-    var title = ViewData["Title"] as string ?? "Clean Connect";
-    var role = ViewData["PortalRole"] as string ?? "Guest";
-    var isClient = string.Equals(role, "Client", StringComparison.OrdinalIgnoreCase);
-    var isWorker = string.Equals(role, "Worker", StringComparison.OrdinalIgnoreCase);
-
-    string Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : "";
-}
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0d9488" />
-    <meta name="clean-connect-api-base" content="http://localhost:5022" />
-    <title>@title - Clean Connect</title>
-    <link rel="icon" type="image/png" href="~/images/favicon.png" />
-    <link rel="stylesheet" href="~/monoline/assets/bootstrap/css/bootstrap.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/monoline/assets/fonts/font-awesome.min.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/monoline/assets/css/style.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/monoline/assets/css/responsive.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="~/css/clean-connect-portal.css" asp-append-version="true" />
-</head>
-<body class="cc-body @ViewData["BodyClass"]" data-portal-role="@role">
-    <a class="cc-skip-link" href="#main-content">Skip to content</a>
-    <header class="cc-topbar">
-        <nav class="container cc-nav" aria-label="Primary navigation">
-            <a class="cc-brand" asp-controller="Home" asp-action="Index">
-                <span class="cc-brand-mark">CC</span>
-                <span>
-                    <strong>Clean Connect</strong>
-                    <small>Cleaning services platform</small>
-                </span>
-            </a>
-            <button class="cc-menu-toggle" type="button" data-menu-toggle aria-label="Toggle navigation">
-                <i class="fa fa-bars"></i>
-            </button>
-            <div class="cc-nav-links" data-menu>
-                @if (isClient)
-                {
-                    <a class="@Active("ClientDashboard")" asp-controller="ClientDashboard" asp-action="Index">Dashboard</a>
-                    <a class="@Active("ClientBookings")" asp-controller="ClientBookings" asp-action="Index">Book</a>
-                    <a class="@Active("ClientPayments")" asp-controller="ClientPayments" asp-action="Index">Payments</a>
-                    <a class="@Active("ClientMessages")" asp-controller="ClientMessages" asp-action="Index">Messages</a>
-                    <a class="@Active("ClientSettings")" asp-controller="ClientSettings" asp-action="Index">Settings</a>
-                }
-                else if (isWorker)
-                {
-                    <a class="@Active("WorkerDashboard")" asp-controller="WorkerDashboard" asp-action="Index">Dashboard</a>
-                    <a class="@Active("WorkerJobs")" asp-controller="WorkerJobs" asp-action="Index">Jobs</a>
-                    <a class="@Active("WorkerWallet")" asp-controller="WorkerWallet" asp-action="Index">Wallet</a>
-                    <a class="@Active("WorkerMessages")" asp-controller="WorkerMessages" asp-action="Index">Messages</a>
-                    <a class="@Active("WorkerSettings")" asp-controller="WorkerSettings" asp-action="Index">Settings</a>
-                }
-                else
-                {
-                    <a href="/#services">Services</a>
-                    <a href="/#how-it-works">How it works</a>
-                    <a href="/#reviews">Reviews</a>
-                    <a asp-controller="Account" asp-action="Login">Sign in</a>
-                    <a class="cc-nav-cta" asp-controller="Account" asp-action="Register">Get started</a>
-                }
-            </div>
-        </nav>
-    </header>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <main id="main-content">
+    <title>@ViewData["Title"] - Clean Connect</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-broom me-2"></i>
+                Clean Connect
+            </a>
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNavbar">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse"
+                 id="mainNavbar">
+
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           asp-controller="Home"
+                           asp-action="Index">
+                            Home
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           asp-controller="Home"
+                           asp-action="About">
+                            About
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           asp-controller="Home"
+                           asp-action="Contact">
+                            Contact
+                        </a>
+                    </li>
+
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Dashboard"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form method="post"
+                                  asp-controller="Auth"
+                                  asp-action="Logout">
+
+                                <button type="submit"
+                                        class="btn btn-danger ms-2">
+                                    Logout
+                                </button>
+
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="btn btn-login ms-2"
+                               asp-controller="Auth"
+                               asp-action="Login">
+                                Login
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="btn btn-register ms-2"
+                               asp-controller="Auth"
+                               asp-action="Register">
+                                Register
+                            </a>
+                        </li>
+                    }
+
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
         @RenderBody()
     </main>
 
-    <footer class="cc-footer">
+    <!-- Footer -->
+    <footer>
         <div class="container">
-            <div>
-                <strong>Clean Connect</strong>
-                <p>Verified cleaners, protected payments, clear communication, and cleaner daily operations.</p>
-                <p class="mt-2 text-xs text-muted" style="font-size: 0.8rem; color: #64748b; margin-top: 8px;">&copy; @DateTime.Now.Year Clean Connect. All rights reserved.</p>
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <h5>Clean Connect</h5>
+                    <p>
+                        Connecting clients with trusted cleaning professionals.
+                    </p>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <h5>Quick Links</h5>
+
+                    <ul class="list-unstyled">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <h5>Contact</h5>
+
+                    <p>
+                        <i class="fas fa-envelope"></i>
+                        support@cleanconnect.com
+                    </p>
+
+                    <p>
+                        <i class="fas fa-phone"></i>
+                        +234 xxx xxx xxxx
+                    </p>
+                </div>
+
             </div>
-            <div class="cc-footer-links">
-                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                @if (string.Equals(role, "Guest", StringComparison.OrdinalIgnoreCase))
-                {
-                    <a asp-controller="Account" asp-action="Login">Sign in</a>
-                    <a asp-controller="Account" asp-action="Register">Create account</a>
-                }
-            </div>
+
+            <hr />
+
+            <p class="text-center mb-0">
+                © @DateTime.Now.Year Clean Connect. All Rights Reserved.
+            </p>
+
         </div>
     </footer>
 
-    <script src="~/monoline/assets/js/jquery-1.12.4.min.js" asp-append-version="true"></script>
-    <script src="~/monoline/assets/bootstrap/js/bootstrap.min.js" asp-append-version="true"></script>
-    <script src="~/js/clean-connect-portal.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
     @await Component.InvokeAsync("Notyf")
+
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+
 </body>
 </html>

@@ -20,13 +20,13 @@
 	  <PrivateAssets>all</PrivateAssets>
 	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	</PackageReference>
-	<PackageReference Include="Serilog" Version="4.3.0" />
+	<PackageReference Include="Serilog" Version="4.3.1" />
 	<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 	<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 	<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.6" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.6" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
-	<PackageReference Include="MediatR" Version="14.0.0" />
+	<PackageReference Include="MediatR" Version="14.1.0" />
 	<PackageReference Include="FluentValidation" Version="12.1.1" />
 	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 	<PackageReference Include="WakaTime" Version="8.1.11" />

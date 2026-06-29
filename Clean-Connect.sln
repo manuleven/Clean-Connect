@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clean-Connect.Persistence",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clean-Connect.Domain", "src\Clean-Connect.Domain\Clean-Connect.Domain.csproj", "{BF5F915F-AEAC-4463-BC85-E76DA69AB365}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clean-Connect.Web", "src\Clean-Connect.Web\Clean-Connect.Web.csproj", "{68125B1D-E11E-457E-B5A7-30A13320C173}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clean-Connect.Web", "Src\Clean-Connect.Web\Clean-Connect.Web.csproj", "{F7DB783A-D2F3-4E32-B8E8-F7CACFA1FB5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,12 +41,15 @@ Global
 		{BF5F915F-AEAC-4463-BC85-E76DA69AB365}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF5F915F-AEAC-4463-BC85-E76DA69AB365}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF5F915F-AEAC-4463-BC85-E76DA69AB365}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68125B1D-E11E-457E-B5A7-30A13320C173}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68125B1D-E11E-457E-B5A7-30A13320C173}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68125B1D-E11E-457E-B5A7-30A13320C173}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68125B1D-E11E-457E-B5A7-30A13320C173}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7DB783A-D2F3-4E32-B8E8-F7CACFA1FB5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7DB783A-D2F3-4E32-B8E8-F7CACFA1FB5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7DB783A-D2F3-4E32-B8E8-F7CACFA1FB5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7DB783A-D2F3-4E32-B8E8-F7CACFA1FB5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {14A780A3-C86C-4D6C-920A-F7CD77F0F78A}
 	EndGlobalSection
 EndGlobal

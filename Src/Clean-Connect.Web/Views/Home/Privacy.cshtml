@@ -1,33 +1,6 @@
-@{
-    ViewData["Title"] = "Privacy";
-    ViewData["BodyClass"] = "privacy-page";
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
 }
+<h1>@ViewData["Title"]</h1>
 
-<section class="page-hero page-hero--compact">
-    <div class="page-shell">
-        <p class="eyebrow">Privacy</p>
-        <h1>Clear data practices for customers, cleaners, and admins.</h1>
-        <p>Clean Connect is designed to protect booking details, payment state, cleaner activity, and support history with role-aware access.</p>
-    </div>
-</section>
-
-<section class="page-section">
-    <div class="page-shell split-layout">
-        <article class="summary-panel">
-            <h2>What the system uses</h2>
-            <ul class="clean-list">
-                <li>@await Html.PartialAsync("_AppIcon", "check") <span>Booking and address details for service delivery.</span></li>
-                <li>@await Html.PartialAsync("_AppIcon", "check") <span>Payment references for escrow and reconciliation.</span></li>
-                <li>@await Html.PartialAsync("_AppIcon", "check") <span>Cleaner status updates for live tracking and support.</span></li>
-            </ul>
-        </article>
-        <article class="summary-panel">
-            <h2>How the UI supports privacy</h2>
-            <p>Pages are structured for role-specific workflows, visible status changes, and explicit customer confirmation before payment release.</p>
-            <a class="btn-clean btn-clean--secondary" asp-controller="Booking" asp-action="Index">
-                @await Html.PartialAsync("_AppIcon", "calendar")
-                <span>Return to booking</span>
-            </a>
-        </article>
-    </div>
-</section>
+<p>Use this page to detail your site's privacy policy.</p>

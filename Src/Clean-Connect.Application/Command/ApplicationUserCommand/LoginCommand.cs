@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Data;
 
 namespace Clean_Connect.Application.Command.ApplicationUserCommand
 {
@@ -64,6 +65,8 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
 
 
 
+           
+
 
             var login = await signInManager.PasswordSignInAsync(appUser,request.Password,request.RememberMe,lockoutOnFailure: false);
             if (!login.Succeeded)
@@ -91,8 +94,40 @@ namespace Clean_Connect.Application.Command.ApplicationUserCommand
                     UserId = appUser.Id
                 };
             }
+             var roles = await user.GetRolesAsync(appUser);
+
+            if (roles.Contains("Worker") && !appUser.IsWorkerProfileCompleted)
+            {
+                logger.LogInformation(
+                    "Worker {Email} logged in but has not completed their profile.",
+                    request.Email);
+
+                return new LoginResponse
+                {
+                    UserId = appUser.Id,
+                    Email = appUser.Email ?? request.Email,
+                    Roles = roles.ToArray(),
+                    IsSuccessful = true,
+                    RequiresWorkerProfileCompletion = true
+                };
+            }
+            if (roles.Contains("Client") && !appUser.IsClientProfileCompleted)
+            {
+                logger.LogInformation(
+                    "Client {Email} logged in but has not completed their profile.",
+                    request.Email);
+
+                return new LoginResponse
+                {
+                    UserId = appUser.Id,
+                    Email = appUser.Email ?? request.Email,
+                    Roles = roles.ToArray(),
+                    IsSuccessful = true,
+                    RequiresClientProfileCompletion = true
+                };
+            }
             var token = await _mediator.Send(new JwtTokenCommand(appUser), cancellationToken);
-            var roles = await user.GetRolesAsync(appUser);
+            
 
             logger.LogInformation("User logged in: {Email}", request.Email);
 

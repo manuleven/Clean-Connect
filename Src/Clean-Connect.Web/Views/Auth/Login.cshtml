@@ -1,0 +1,216 @@
+﻿@model Clean_Connect.Application.DTO.LoginDto
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="auth-container">
+
+    <!-- LEFT SIDE -->
+    <div class="auth-left">
+
+        <div class="overlay"></div>
+
+        <div class="left-content" data-aos="fade-right">
+
+            <div class="brand">
+
+                <i class="fa-solid fa-broom"></i>
+
+                <h1>Clean Connect</h1>
+
+            </div>
+
+            <h2>Connecting Trusted Cleaners with Happy Clients.</h2>
+
+            <p>
+                Find reliable cleaning professionals or grow your
+                cleaning business with one trusted platform.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+
+    <div class="auth-right">
+
+        <div class="login-card shadow-lg" data-aos="fade-left">
+
+            <div class="text-center mb-4">
+
+                <h2 class="fw-bold">Welcome Back 👋</h2>
+
+                <p class="text-muted">
+                    Sign in to continue
+                </p>
+
+            </div>
+
+            <form asp-action="Login"
+                  asp-controller="Auth"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <!-- EMAIL -->
+
+                <div class="mb-4">
+
+                    <label asp-for="Email"
+                           class="form-label">
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+
+                            <i class="fa-solid fa-envelope"></i>
+
+                        </span>
+
+                        <input asp-for="Email"
+                               class="form-control"
+                               placeholder="Enter your email" />
+
+                    </div>
+
+                    <span asp-validation-for="Email"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- PASSWORD -->
+
+                <div class="mb-3">
+
+                    <label asp-for="Password"
+                           class="form-label">
+                    </label>
+
+                    <div class="input-group">
+
+                        <span class="input-group-text">
+
+                            <i class="fa-solid fa-lock"></i>
+
+                        </span>
+
+                        <input asp-for="Password"
+                               id="password"
+                               class="form-control"
+                               placeholder="Enter your password"
+                               type="password" />
+
+                        <button class="btn btn-outline-secondary"
+                                type="button"
+                                id="togglePassword">
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+                <!-- REMEMBER -->
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <div class="form-check">
+
+                        <input asp-for="RememberMe"
+                               class="form-check-input" />
+
+                        <label asp-for="RememberMe"
+                               class="form-check-label">
+                            Remember Me
+                        </label>
+
+                    </div>
+
+                    <a asp-action="ForgotPassword"
+                       asp-controller="Auth"
+                       class="forgot-link">
+
+                        Forgot Password?
+
+                    </a>
+
+                </div>
+
+                <!-- LOGIN -->
+
+                <button type="submit"
+                        class="btn btn-success w-100 login-btn">
+
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>
+
+                    Sign In
+
+                </button>
+
+                <div class="divider">
+
+                    <span>OR</span>
+
+                </div>
+
+                <!-- GOOGLE -->
+
+                <a asp-action="GoogleLogin"
+                   asp-controller="Auth"
+                   class="btn btn-light border w-100 google-btn">
+
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg"
+                         width="22"
+                         class="me-2" />
+
+                    Continue with Google
+
+                </a>
+
+                <div class="text-center mt-4">
+
+                    <span class="text-muted">
+
+                        Don't have an account?
+
+                    </span>
+
+                    <a asp-action="Register"
+                       asp-controller="Auth">
+
+                        Register
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    
+
+}

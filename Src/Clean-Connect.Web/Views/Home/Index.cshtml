@@ -1,115 +1,606 @@
-@model PublicHomeViewModel
-@{
+﻿@{
     ViewData["Title"] = "Home";
-    ViewData["PortalRole"] = "Guest";
-    ViewData["BodyClass"] = "public-home";
 }
 
-<section class="cc-hero" style="--cc-hero-image: url('/monoline/assets/img/bg/home-bg.jpg')">
-    <div class="container">
-        <h1>Clean Connect</h1>
-        <p>Book verified cleaners, fund jobs through protected escrow, track every appointment, and manage service quality from one modern cleaning platform.</p>
-        <div class="cc-actions mt-4">
-            <a class="btn cc-btn-primary btn-lg" asp-controller="Account" asp-action="Register">Book a cleaner</a>
-            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register" asp-route-role="Worker">Work with us</a>
-        </div>
-    </div>
-</section>
+<!-- HERO SECTION -->
+<section class="hero-section">
 
-<section id="services" class="cc-page">
-    <div class="container">
-        <div class="cc-section-title">
-            <h2>Services for homes and workplaces</h2>
-            <p>Choose a package, schedule a time, match with a verified worker, and release payment only after the job is confirmed.</p>
+    <div id="heroCarousel"
+         class="carousel slide carousel-fade"
+         data-bs-ride="carousel"
+         data-bs-interval="5000">
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <button type="button"
+                    data-bs-target="#heroCarousel"
+                    data-bs-slide-to="0"
+                    class="active"></button>
+
+            <button type="button"
+                    data-bs-target="#heroCarousel"
+                    data-bs-slide-to="1"></button>
+
+            <button type="button"
+                    data-bs-target="#heroCarousel"
+                    data-bs-slide-to="2"></button>
         </div>
-        <div class="cc-grid cc-grid-3">
-            @foreach (var service in Model.Services)
-            {
-                <article class="cc-card">
-                    <img class="cc-card-img" src="@service.Image" alt="@service.Name cleaning service" />
-                    <div class="cc-card-body">
-                        <h3>@service.Name</h3>
-                        <p class="cc-muted">@service.Summary</p>
-                        <strong>NGN @service.Amount.ToString("N0")</strong>
-                        <span class="cc-status ms-2">@service.Duration</span>
-                        <ul class="mt-3">
-                            @foreach (var item in service.Includes)
-                            {
-                                <li>@item</li>
-                            }
-                        </ul>
+
+        <div class="carousel-inner">
+
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+
+                <div class="hero-slide"
+                     style="background-image:url('/images/hero/home-cleaning.jfif');">
+
+                    <div class="hero-overlay"></div>
+
+                    <div class="container h-100">
+
+                        <div class="row h-100 align-items-center">
+
+                            <div class="col-lg-7 hero-content">
+
+                                <h1 class="display-3 fw-bold"
+                                    data-aos="fade-right">
+
+                                    Find Trusted Cleaning Professionals
+
+                                </h1>
+
+                                <p class="lead my-4"
+                                   data-aos="fade-right"
+                                   data-aos-delay="200">
+
+                                    Book verified cleaners for your home,
+                                    apartment and office in minutes.
+
+                                </p>
+
+                                <div data-aos="fade-up"
+                                     data-aos-delay="400">
+
+                                    <a asp-controller="Auth"
+                                       asp-action="Register"
+                                       class="btn btn-success btn-lg me-3">
+
+                                        Hire a Cleaner
+
+                                    </a>
+
+                                    <a asp-controller="Auth"
+                                       asp-action="Register"
+                                       class="btn btn-outline-light btn-lg">
+
+                                        Become a Cleaner
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
-                </article>
-            }
-        </div>
-    </div>
-</section>
 
-<section id="how-it-works" class="cc-band">
-    <div class="container">
-        <div class="cc-section-title">
-            <h2>From request to payout</h2>
-            <p>Both sides get a clear workflow: clients see price, progress, and quality; workers see jobs, status, and earnings.</p>
-        </div>
-        <div class="cc-grid cc-grid-3">
-            <div class="cc-card cc-card-body">
-                <span class="cc-metric-icon cc-tone-green"><i class="fa fa-calendar-check-o"></i></span>
-                <h3 class="mt-3">Schedule</h3>
-                <p class="cc-muted">Clients choose service, location, date, and time range using backend-ready booking fields.</p>
-            </div>
-            <div class="cc-card cc-card-body">
-                <span class="cc-metric-icon cc-tone-blue"><i class="fa fa-user-circle"></i></span>
-                <h3 class="mt-3">Match</h3>
-                <p class="cc-muted">Workers receive nearby requests, accept or reject, and manage job progress from their portal.</p>
-            </div>
-            <div class="cc-card cc-card-body">
-                <span class="cc-metric-icon cc-tone-orange"><i class="fa fa-lock"></i></span>
-                <h3 class="mt-3">Protect</h3>
-                <p class="cc-muted">Payments move through escrow and payout states, giving both roles confidence in every job.</p>
-            </div>
-        </div>
-    </div>
-</section>
+                </div>
 
-<section class="cc-page">
-    <div class="container">
-        <div class="cc-section-title">
-            <h2>Verified workers near you</h2>
-            <p>Cleaner profiles, service category, availability, completed jobs, and ratings are visible before a booking is confirmed.</p>
-        </div>
-        <div class="cc-grid cc-grid-3">
-            @foreach (var worker in Model.FeaturedWorkers)
-            {
-                <article class="cc-card">
-                    <img class="cc-card-img" src="@worker.Image" alt="@worker.Name" />
-                    <div class="cc-card-body">
-                        <h3>@worker.Name</h3>
-                        <p class="cc-muted">@worker.Service · @worker.Location</p>
-                        <span class="cc-status success">@worker.Rating.ToString("0.00") rating</span>
-                        <p class="mt-3 mb-0">@worker.CompletedJobs completed jobs · @worker.Availability</p>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+
+                <div class="hero-slide"
+                     style="background-image:url('/images/hero/office-cleaning.jfif');">
+
+                    <div class="hero-overlay"></div>
+
+                    <div class="container h-100">
+
+                        <div class="row h-100 align-items-center">
+
+                            <div class="col-lg-7 hero-content">
+
+                                <h1 class="display-3 fw-bold">
+
+                                    Professional Office Cleaning
+
+                                </h1>
+
+                                <p class="lead my-4">
+
+                                    Keep your workplace spotless with
+                                    experienced and reliable professionals.
+
+                                </p>
+
+                                <a asp-controller="Auth"
+                                   asp-action="Register"
+                                   class="btn btn-success btn-lg">
+
+                                    Book Now
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
                     </div>
-                </article>
-            }
+
+                </div>
+
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="carousel-item">
+
+                <div class="hero-slide"
+                     style="background-image:url('/images/hero/cleaner.jfif');">
+
+                    <div class="hero-overlay"></div>
+
+                    <div class="container h-100">
+
+                        <div class="row h-100 align-items-center">
+
+                            <div class="col-lg-7 hero-content">
+
+                                <h1 class="display-3 fw-bold">
+
+                                    Looking For Cleaning Jobs?
+
+                                </h1>
+
+                                <p class="lead my-4">
+
+                                    Join Clean Connect and connect with
+                                    thousands of clients looking for your
+                                    services.
+
+                                </p>
+
+                                <a asp-controller="Auth"
+                                   asp-action="Register"
+                                   class="btn btn-success btn-lg">
+
+                                    Become a Cleaner
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
+
+        <!-- Controls -->
+
+        <button class="carousel-control-prev"
+                type="button"
+                data-bs-target="#heroCarousel"
+                data-bs-slide="prev">
+
+            <span class="carousel-control-prev-icon"></span>
+
+        </button>
+
+        <button class="carousel-control-next"
+                type="button"
+                data-bs-target="#heroCarousel"
+                data-bs-slide="next">
+
+            <span class="carousel-control-next-icon"></span>
+
+        </button>
+
     </div>
+
+</section>
+<!-- HOW IT WORKS -->
+<section class="how-it-works section">
+
+    <div class="container">
+
+        <h2 class="text-center fw-bold mb-5"
+            data-aos="fade-up">
+            How It Works
+        </h2>
+
+        <div class="row text-center">
+
+            <div class="col-md-4 mb-4"
+                 data-aos="zoom-in"
+                 data-aos-delay="100">
+
+                <div class="step-circle">
+                    1
+                </div>
+
+                <h4>Create Account</h4>
+
+                <p>
+                    Register as a Client looking for services
+                    or a Worker offering cleaning services.
+                </p>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="zoom-in"
+                 data-aos-delay="200">
+
+                <div class="step-circle">
+                    2
+                </div>
+
+                <h4>Connect</h4>
+
+                <p>
+                    Browse services, post requests,
+                    and connect with trusted professionals.
+                </p>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="zoom-in"
+                 data-aos-delay="300">
+
+                <div class="step-circle">
+                    3
+                </div>
+
+                <h4>Get Results</h4>
+
+                <p>
+                    Complete jobs, leave reviews,
+                    and build long-term relationships.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>
 
-<section id="reviews" class="cc-band">
+<!-- POPULAR SERVICES -->
+<section class="services-section section">
+
     <div class="container">
-        <div class="cc-section-title">
-            <h2>People trust the workflow</h2>
-            <p>Realistic states for reviews, escrow, notifications, and job completion are represented in the frontend from day one.</p>
+
+        <h2 class="text-center fw-bold mb-5"
+            data-aos="fade-up">
+            Popular Services
+        </h2>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="100">
+
+                <div class="service-card">
+
+                    <i class="fas fa-home"></i>
+
+                    <h4>Home Cleaning</h4>
+
+                    <p>
+                        Professional home cleaning services
+                        for every space.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="200">
+
+                <div class="service-card">
+
+                    <i class="fas fa-building"></i>
+
+                    <h4>Office Cleaning</h4>
+
+                    <p>
+                        Keep your workplace spotless
+                        and productive.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="300">
+
+                <div class="service-card">
+
+                    <i class="fas fa-soap"></i>
+
+                    <h4>Deep Cleaning</h4>
+
+                    <p>
+                        Comprehensive cleaning for homes
+                        and businesses.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="400">
+
+                <div class="service-card">
+
+                    <i class="fas fa-couch"></i>
+
+                    <h4>Furniture Cleaning</h4>
+
+                    <p>
+                        Restore freshness to sofas,
+                        chairs and upholstery.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="500">
+
+                <div class="service-card">
+
+                    <i class="fas fa-broom"></i>
+
+                    <h4>Move-In Cleaning</h4>
+
+                    <p>
+                        Start fresh with a professionally
+                        cleaned space.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="600">
+
+                <div class="service-card">
+
+                    <i class="fas fa-spray-can-sparkles"></i>
+
+                    <h4>Post Construction</h4>
+
+                    <p>
+                        Remove dust and debris after
+                        renovation projects.
+                    </p>
+
+                </div>
+
+            </div>
+
         </div>
-        <div class="cc-grid cc-grid-3">
-            @foreach (var review in Model.Reviews)
-            {
-                <article class="cc-card cc-card-body">
-                    <span class="cc-status success">@review.Rating stars</span>
-                    <h3 class="mt-3">@review.Author</h3>
-                    <p class="cc-muted">@review.Subject · @review.Date</p>
-                    <p>@review.Comment</p>
-                </article>
-            }
-        </div>
+
     </div>
+
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="bg-light section">
+
+    <div class="container">
+
+        <h2 class="text-center fw-bold mb-5"
+            data-aos="fade-up">
+            Why Choose Clean Connect?
+        </h2>
+
+        <div class="row text-center">
+
+            <div class="col-md-3 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="100">
+
+                <i class="fas fa-user-check fa-3x text-success mb-3"></i>
+
+                <h5>Verified Workers</h5>
+
+                <p>
+                    Trusted professionals you can rely on.
+                </p>
+
+            </div>
+
+            <div class="col-md-3 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="200">
+
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+
+                <h5>Secure Platform</h5>
+
+                <p>
+                    Safe and transparent interactions.
+                </p>
+
+            </div>
+
+            <div class="col-md-3 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="300">
+
+                <i class="fas fa-clock fa-3x text-success mb-3"></i>
+
+                <h5>Fast Booking</h5>
+
+                <p>
+                    Quickly find and connect with cleaners.
+                </p>
+
+            </div>
+
+            <div class="col-md-3 mb-4"
+                 data-aos="fade-up"
+                 data-aos-delay="400">
+
+                <i class="fas fa-star fa-3x text-success mb-3"></i>
+
+                <h5>Trusted Reviews</h5>
+
+                <p>
+                    Make informed decisions with confidence.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FEATURED WORKERS -->
+<<section class="featured-workers section">
+
+    <div class="container">
+
+        <h2 class="text-center fw-bold mb-5"
+            data-aos="fade-up">
+            Featured Professionals
+        </h2>
+
+        <div class="row">
+
+            <div class="col-md-4 mb-4"
+                 data-aos="flip-left"
+                 data-aos-delay="100">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body text-center">
+
+                        <i class="fas fa-user-circle fa-5x text-secondary mb-3"></i>
+
+                        <h5>Worker Name</h5>
+
+                        <p>Home Cleaning Specialist</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="flip-left"
+                 data-aos-delay="200">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body text-center">
+
+                        <i class="fas fa-user-circle fa-5x text-secondary mb-3"></i>
+
+                        <h5>Worker Name</h5>
+
+                        <p>Office Cleaning Expert</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-4 mb-4"
+                 data-aos="flip-left"
+                 data-aos-delay="300">
+
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-body text-center">
+
+                        <i class="fas fa-user-circle fa-5x text-secondary mb-3"></i>
+
+                        <h5>Worker Name</h5>
+
+                        <p>Deep Cleaning Professional</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- CALL TO ACTION -->
+<section class="cta-section">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8 text-center">
+
+                <h2 data-aos="fade-up">
+                    Ready to Get Started?
+                </h2>
+
+                <p data-aos="fade-up" data-aos-delay="150">
+                    Join Clean Connect today and connect with trusted cleaning
+                    professionals for your home or business. Whether you're
+                    looking to hire or earn, we've got you covered.
+                </p>
+
+                <div data-aos="zoom-in" data-aos-delay="300">
+
+                    <a asp-controller="Auth"
+                       asp-action="Register"
+                       class="btn btn-success btn-lg">
+
+                        Register as Client
+
+                    </a>
+
+                    <a asp-controller="Auth"
+                       asp-action="Register"
+                       class="btn btn-outline-light btn-lg">
+
+                        Register as Worker
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </section>

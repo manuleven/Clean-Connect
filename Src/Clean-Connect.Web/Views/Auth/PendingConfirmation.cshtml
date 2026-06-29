@@ -1,0 +1,78 @@
+﻿
+@model string
+@{
+    ViewData["Title"] = "Verify Your Email";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="auth-right w-100">
+
+    <div class="login-card text-center">
+
+        <div class="pending-icon">
+
+            <i class="fa-solid fa-envelope-circle-check"></i>
+
+        </div>
+
+        <h2>Verify Your Email</h2>
+
+        <p class="mb-4">
+
+            We've sent a verification link to <strong>@Model</strong>.
+
+            Please check your inbox and click the confirmation link
+            to activate your Clean Connect account.
+
+        </p>
+
+        <div class="alert alert-light border">
+
+            <strong>Didn't receive the email?</strong>
+
+            <br />
+
+            • Check your Spam/Junk folder
+
+            <br />
+
+            • Make sure your email address is correct
+
+            <br />
+
+            • Wait a few minutes before requesting another email
+
+        </div>
+
+        <div class="d-grid gap-3 mt-4">
+
+            <form asp-action="ResendConfirmationEmail"
+                  method="post"
+                  class="mt-4">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="email"
+                       value="@Model" />
+
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Resend Verification Email
+                </button>
+            </form>
+
+            <a asp-action="Login"
+               asp-controller="Auth"
+               class="btn btn-outline-secondary">
+
+                Back to Login
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>

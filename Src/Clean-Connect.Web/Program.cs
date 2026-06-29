@@ -5,66 +5,54 @@ using Clean_Connect.Application.Command.Services;
 using Clean_Connect.Application.Interface.Repositories;
 using Clean_Connect.Application.Interface.Services;
 using Clean_Connect.Domain.Entities;
-using Clean_Connect.Infrastructure.Configuration;
 using Clean_Connect.Infrastructure.Context;
 using Clean_Connect.Persistence.Repositories;
-using Clean_Connect.Web.Hubs;
-using Clean_Connect.Web.Services;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
+
+
+// --------------------
+// Serilog configuration
+// --------------------
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // --------------------
 // JWT settings
 // --------------------
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
-// MediatR
 // --------------------
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
-
+// Add DbContext first
+// --------------------
 builder.Services.AddSqlServer<ApplicationDbContext>(
     builder.Configuration.GetConnectionString("DefaultConnection"),
     b => b.UseNetTopologySuite()
    .MigrationsAssembly("Clean-Connect.Persistence"));
 
-
-
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
-
-
 // --------------------
-// DI for Services
+// Identity Core for API
 // --------------------
-builder.Services.AddHttpClient<GeocodingService>();
-builder.Services.AddScoped<WorkerAvailabilityService>();
-builder.Services.AddScoped<BookingRuleService>();
-builder.Services.AddScoped<AcceptBookingService>();
-builder.Services.AddScoped<MarkAsCompletedService>();
-builder.Services.AddScoped<EscrowService>();
-builder.Services.AddScoped<PayoutService>();
-builder.Services.AddScoped<WalletService>();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
 
-builder.Services.AddHttpClient<IPaystackService, PaystackService>();
-
-
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
 
 // --------------------
 // Authentication - JWT
@@ -88,9 +76,33 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+// --------------------
+// Authorization
+// --------------------
+builder.Services.AddAuthorization();
+// Add services to the container.
+builder.Services.AddControllersWithViews();
 
+
+// --------------------
+// MediatR
+// --------------------
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(ApplicationAssemblyMarker).Assembly));
+
+// --------------------
+// DI for Services
+// --------------------
+builder.Services.AddHttpClient<GeocodingService>();
+builder.Services.AddScoped<WorkerAvailabilityService>();
+builder.Services.AddScoped<BookingRuleService>();
+builder.Services.AddScoped<AcceptBookingService>();
+builder.Services.AddScoped<MarkAsCompletedService>();
+builder.Services.AddScoped<EscrowService>();
+builder.Services.AddScoped<PayoutService>();
+builder.Services.AddScoped<WalletService>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddHttpClient<IPaystackService, PaystackService>();
 
 
 // --------------------
@@ -107,21 +119,27 @@ builder.Services.AddScoped<IEscrowRepository, EscrowRepository>();
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddSingleton<IExperienceDataService, ExperienceDataService>();
-builder.Services.AddSingleton<IPortalExperienceService, PortalExperienceService>();
-builder.Services.AddSingleton<IDashboardFeed, DashboardFeed>();
-builder.Services.AddHostedService<DashboardRealtimeService>();
 
+// --------------------
+// FluentValidation
+// --------------------
+builder.Services.AddValidatorsFromAssembly(typeof(ApplicationAssemblyMarker).Assembly);
+
+// --------------------
+// MediatR Pipeline Behaviors
+// --------------------
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehaviour<,>));
 
-// NOTYF (works only in MVC)
 builder.Services.AddNotyf(config =>
 {
     config.DurationInSeconds = 10;
     config.IsDismissable = true;
     config.Position = NotyfPosition.TopRight;
 });
+
+
+
 
 
 var app = builder.Build();
@@ -146,6 +164,5 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-app.MapHub<AdminDashboardHub>("/hubs/admin-dashboard");
 
 app.Run();
