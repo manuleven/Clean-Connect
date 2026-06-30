@@ -245,49 +245,109 @@ namespace Clean_Connect.Web.Controllers
             return View("Error", null);
         }
 
-        //[Authorize]
-        //public async Task<IActionResult> GetStarted()
-        //{
-        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+           return View(new ForgotPasswordDto());
+        }
 
-        //    var user = await _user.FindByIdAsync(userId);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Forgot password validation failed for {Email}", model.Email);
+                _notyf.Error("Please correct the highlighted errors.");
+                return View(model);
+            }
 
-        //    if (await _user.IsInRoleAsync(user, "Client"))
-        //    {
-        //        var clientProfileExists = await _dbContext.ClientProfiles
-        //            .AnyAsync(x => x.UserId == userId);
+            try
+            {
+                var command = new ForgotPasswordCommand(model.Email);
+                _logger.LogInformation("Processing forgot password request for {Email}", model.Email);
 
-        //        if (!clientProfileExists)
-        //        {
-        //            return RedirectToAction(
-        //                "Create",
-        //                "ClientProfile");
-        //        }
+                await _mediator.Send(command);
 
-        //        return RedirectToAction(
-        //            "Create",
-        //            "Booking");
-        //    }
+                return RedirectToAction(nameof(ResetLinkSent));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while processing forgot password request for {Email}", model.Email);
+                _notyf.Error("An error occurred while processing your request.");
+                
+            }
+            return View(model);
 
-        //    if (await _userManager.IsInRoleAsync(user, "Worker"))
-        //    {
-        //        var workerProfileExists = await _dbContext.WorkerProfiles
-        //            .AnyAsync(x => x.UserId == userId);
 
-        //        if (!workerProfileExists)
-        //        {
-        //            return RedirectToAction(
-        //                "Create",
-        //                "WorkerProfile");
-        //        }
 
-        //        return RedirectToAction(
-        //            "Dashboard",
-        //            "Worker");
-        //    }
+        }
 
-        //    return RedirectToAction("Index", "Home");
-        //}
+        [HttpGet("Reset-Password")]
+        public IActionResult ResetPassword(string email, string token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                _logger.LogWarning("Reset password attempted with missing email or token.");
+                _notyf.Error("Invalid password reset link.");
+                return View("Error");
+            }
+            var model = new ResetPasswordDto
+            {
+                Email = email,
+                Token = token
+            };
+            return View(model);
+        }
+
+        [HttpPost("Reset-Password")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Reset password validation failed for {Email}", model.Email);
+                _notyf.Error("Please correct the highlighted errors.");
+                return View(model);
+            }
+            try
+            {
+                var command = new ResetPasswordCommand(model.Email, model.Token, model.Password);
+                _logger.LogInformation("Processing reset password request for {Email}", model.Email);
+                var result = await _mediator.Send(command);
+                if (result)
+                {
+                    _notyf.Success("Password has been reset successfully!");
+                    return RedirectToAction(nameof(PasswordResetSuccess));
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to reset password for {Email}. Invalid token or email.", model.Email);
+                    _notyf.Error("Failed to reset password. The link may be invalid or expired.");
+                    return View(model);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while resetting password for {Email}", model.Email);
+                _notyf.Error("An error occurred while processing your request.");
+                return View(model);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult PasswordResetSuccess()
+        {
+            return View();
+        }
+
+        public IActionResult ResetLinkSent()
+        {
+            return View();
+        }
+
+
+        [HttpGet("Profile")]
         public IActionResult Profile()
         {
             return View();

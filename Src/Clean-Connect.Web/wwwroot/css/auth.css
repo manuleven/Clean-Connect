@@ -605,3 +605,23 @@ body.auth-body {
     text-align: left;
     line-height: 1.8;
 }
+
+/* ==========================================
+   FORGOT PASSWORD ICON
+========================================== */
+
+.pending-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    background: #dbeafe;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .pending-icon i {
+        font-size: 4rem;
+        color: #2563eb;
+    }

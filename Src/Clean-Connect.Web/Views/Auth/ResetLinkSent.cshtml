@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Reset Link Sent";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="auth-right w-100">
+
+    <div class="login-card text-center">
+
+        <div class="pending-icon">
+
+            <i class="fa-solid fa-envelope"></i>
+
+        </div>
+
+        <h2>Check Your Email</h2>
+
+        <p class="mb-4">
+
+            If an account exists with the email address you entered,
+            we've sent a password reset link.
+
+            <br /><br />
+
+            Please check your inbox and spam folder.
+
+        </p>
+
+        <div class="alert alert-light border">
+
+            <strong>Didn't receive the email?</strong>
+
+            <br />
+
+            • Check your Spam/Junk folder
+
+            <br />
+
+            • Wait a few minutes
+
+            <br />
+
+            • Make sure you entered the correct email address
+
+        </div>
+
+        <div class="d-grid gap-3 mt-4">
+
+            <a asp-action="ForgotPassword"
+               class="btn btn-success login-btn">
+
+                Try Again
+
+            </a>
+
+            <a asp-action="Login"
+               class="btn btn-outline-secondary">
+
+                Back to Login
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
